@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<LangVersion>10</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<OutputType>library</OutputType>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<PackageId>Interfaces.SourceGenerator.Contracts</PackageId>
+		<Version>0.0.1</Version>
+		<Authors>Frederik Tegnander</Authors>
+		<Company>COWI</Company>
+		<PackageDescription>Contains attriubutes to use with Interfaces.SourceGenerator</PackageDescription>
+		<RepositoryUrl>https://github.com/Frederik91/Interfaces.SourceGenerator</RepositoryUrl>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<!-- Generates a package at build -->
+	</PropertyGroup>
+
+</Project>

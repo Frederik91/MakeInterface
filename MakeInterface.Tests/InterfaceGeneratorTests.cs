@@ -65,6 +65,10 @@ namespace MakeInterface.Tests
         public void Test3<T>(T data) where T : TestModel { }
         public string? Property1 { get; set; }
         public List<ITestModel?>? TestCollection() { return new List<ITestModel?>(); }
+        public void OutMethod(out string data) { data = string.Empty; }
+        public void RefMethod(ref string data) {  }
+        public void DefaultNullMethod(string? data = default) {  }
+        public void DefaultMethod(int data = default) {  }
     }
 }
 
@@ -90,6 +94,10 @@ public partial interface IClass1
     string? Property1 { get; set; }
 
     System.Collections.Generic.List<MakeInterface.Tests.Models.ITestModel?>? TestCollection();
+    void OutMethod(out string data);
+    void RefMethod(ref string data);
+    void DefaultNullMethod(string? data = default);
+    void DefaultMethod(int data = default);
 }
 """;
 

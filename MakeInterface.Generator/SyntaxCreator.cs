@@ -77,8 +77,31 @@ internal static class SyntaxCreator
             // Parse the type name of the parameter using the ParseTypeName method
             var parameterType = SyntaxFactory.ParseTypeName(parameter.Type.ToDisplayString());
 
-            var parameterSyntax = SyntaxFactory.Parameter(SyntaxFactory.Identifier(parameter.Name))
-                .WithType(parameterType); // Pass the resulting TypeSyntax node to the WithType method
+            var parameterSyntax = SyntaxFactory.Parameter(SyntaxFactory.Identifier(parameter.Name));
+
+
+            // Add any applicable modifiers to the parameterSyntax
+            if (parameter.IsParams)
+            {
+                parameterSyntax = parameterSyntax.WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ParamsKeyword)));
+            }
+            if (parameter.IsOptional)
+            {
+                SyntaxKind kind;
+                if (parameter.Type.SpecialType == SpecialType.System_Nullable_T)
+                    kind = SyntaxKind.NullLiteralExpression;
+                else
+                    kind = SyntaxKind.DefaultLiteralExpression;
+
+                parameterSyntax = parameterSyntax.WithDefault(SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(kind)));
+            }
+            if (parameter.RefKind != RefKind.None)
+            {
+                SyntaxToken refOrOutKeyword = SyntaxFactory.Token(parameter.RefKind == RefKind.Ref ? SyntaxKind.RefKeyword : SyntaxKind.OutKeyword);
+                parameterSyntax = parameterSyntax.WithModifiers(SyntaxFactory.TokenList(refOrOutKeyword));
+            }
+
+            parameterSyntax = parameterSyntax.WithType(parameterType); // Pass the resulting TypeSyntax node to the WithType method
 
             parameters.Add(parameterSyntax);
         }

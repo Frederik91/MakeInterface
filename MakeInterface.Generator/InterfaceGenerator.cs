@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using System.Diagnostics;
 using System.Text;
 
 namespace MakeInterface.Generator;
@@ -15,16 +16,19 @@ public class InterfaceGenerator : ISourceGenerator
         if (context.SyntaxContextReceiver is not ClassAttributeReceiver receiver)
             return;
 
+        var interfaceNamespaceMap = receiver.Classes.ToDictionary(x => "I" + x.Name, x => x.ContainingNamespace.ToDisplayString() + ".I" + x.Name);
+
         foreach (var classSymbol in receiver.Classes)
         {
+            
             var interfaceName = "I" + classSymbol.Name;
-            var source = GenerateInterface(classSymbol, interfaceName);
+            var source = GenerateInterface(classSymbol, interfaceName, interfaceNamespaceMap);
             var sourceText = source.ToFullString();
-            context.AddSource($"{interfaceName}.g.cs", SourceText.From(sourceText, Encoding.UTF8));
+            context.AddSource($"{interfaceName}", SourceText.From(sourceText, Encoding.UTF8));
         }
     }
 
-    private CompilationUnitSyntax GenerateInterface(INamedTypeSymbol classSymbol, string interfaceName)
+    private CompilationUnitSyntax GenerateInterface(INamedTypeSymbol classSymbol, string interfaceName, Dictionary<string, string> interfaceNamespaceMap)
     {
         var trivia = SyntaxCreator.CreateTrivia();
 
@@ -40,18 +44,18 @@ public class InterfaceGenerator : ISourceGenerator
                 if (methodSymbol.MethodKind != MethodKind.Ordinary)
                     continue;
 
-                var methodSyntax = SyntaxCreator.CreateMethod(methodSymbol);
+                var methodSyntax = SyntaxCreator.CreateMethod(methodSymbol, interfaceNamespaceMap);
                 members.Add(methodSyntax);
             }
             else if (member is IPropertySymbol propertySymbol)
             {
-                var propertySyntax = SyntaxCreator.CreateProperty(propertySymbol);
+                var propertySyntax = SyntaxCreator.CreateProperty(propertySymbol, interfaceNamespaceMap);
                 members.Add(propertySyntax);
             }
         }
-        
+
         var interfaceSyntax = SyntaxFactory.InterfaceDeclaration(interfaceName)
-                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.PartialKeyword)))
                                 .WithMembers(SyntaxFactory.List(members));
 
 

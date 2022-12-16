@@ -1,7 +1,7 @@
-# Interfaces.SourceGenerator
+# MakeInterface
 Creates an interface of a class using source generator
 
-[![.NET](https://github.com/Frederik91/Interfaces.SourceGenerator/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Frederik91/Interfaces.SourceGenerator/actions/workflows/dotnet.yml)
+[![.NET](https://github.com/Frederik91/MakeInterface/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Frederik91/MakeInterface/actions/workflows/dotnet.yml)
 
 ## Usage
 Add the attribute to the class you want to generate the interface for
@@ -33,9 +33,9 @@ public class MyClass : IMyClass
 ```
 
 ## Installation
-Install the NuGet package [Interfaces.SourceGenerator](https://www.nuget.org/packages/Interfaces.SourceGenerator/)
+Install the NuGet package [MakeInterface](https://www.nuget.org/packages/MakeInterface/)
 
-You can either create the attribute yourself or use the one provided in the package [Interfaces.SourceGenerator.Contracts](https://www.nuget.org/packages/Interfaces.SourceGenerator.Contracts/)
+You can either create the attribute yourself or use the one provided in the package [MakeInterface.Contracts](https://www.nuget.org/packages/MakeInterface.Contracts/)
 
 
 ## License

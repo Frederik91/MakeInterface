@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Data;
 
-namespace Interfaces.SourceGenerator;
+namespace MakeInterface.Generator;
 internal static class SyntaxCreator
 {
     internal static SyntaxToken CreateTrivia()

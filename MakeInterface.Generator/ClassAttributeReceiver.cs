@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Interfaces.SourceGenerator;
+namespace MakeInterface.Generator;
 internal sealed class ClassAttributeReceiver : ISyntaxContextReceiver
 {
-    private string _expectedAttribute;
+    private readonly string _expectedAttribute;
     public ClassAttributeReceiver(string expectedAttribute) => _expectedAttribute = expectedAttribute;
 
     public List<INamedTypeSymbol> Classes { get; } = new();

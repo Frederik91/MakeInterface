@@ -1,13 +1,11 @@
-﻿using Interfaces.SourceGenerator.Attributes;
+﻿using MakeInterface.Generator.Attributes;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using System;
-using System.Diagnostics;
 using System.Text;
 
-namespace Interfaces.SourceGenerator;
+namespace MakeInterface.Generator;
 
 [Generator]
 public class InterfaceGenerator : ISourceGenerator

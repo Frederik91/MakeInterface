@@ -12,6 +12,24 @@ public class MyClass
 }
 ```
 
+The generated interface will then be generated as IMyClass.g.cs
+```csharp
+public interface IMyClass
+{
+	string MyProperty { get; set; }
+	void MyMethod();
+}
+```
+
+You can then implement the interface in your class
+```csharp
+public class MyClass : IMyClass
+{
+	public string MyProperty { get; set; }
+	public void MyMethod() { }
+}
+```
+
 ## Installation
 Install the NuGet package [Interfaces.SourceGenerator](https://www.nuget.org/packages/Interfaces.SourceGenerator/)
 

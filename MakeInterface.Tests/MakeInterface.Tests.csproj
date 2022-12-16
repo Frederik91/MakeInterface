@@ -26,8 +26,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Interfaces.SourceGenerator.Contracts\MakeInterface.Contracts.csproj" />
-	  <ProjectReference Include="..\Interfaces.SourceGenerator\MakeInterface.Generator.csproj" />
+	  <ProjectReference Include="..\MakeInterface.Contracts\MakeInterface.Contracts.csproj" />
+	  <ProjectReference Include="..\MakeInterface.Generator\MakeInterface.Generator.csproj" />
 	</ItemGroup>
 
 </Project>

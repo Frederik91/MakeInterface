@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Interfaces.SourceGenerator.Contracts\MakeInterface.Contracts.csproj" />
-	  <ProjectReference Include="..\Interfaces.SourceGenerator\MakeInterface.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\MakeInterface.Contracts\MakeInterface.Contracts.csproj" />
+	  <ProjectReference Include="..\MakeInterface.Generator\MakeInterface.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

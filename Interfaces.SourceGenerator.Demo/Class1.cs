@@ -1,9 +1,13 @@
-﻿using Interfaces.SourceGenerator.Demo.Models;
+﻿using Interfaces.SourceGenerator.Contracts.Attributes;
+using Interfaces.SourceGenerator.Demo.Models;
 
 namespace Interfaces.SourceGenerator.Demo;
-public class Class1 : ClassBase
+
+[GenerateInterface]
+public class Class1 : ClassBase, IClass1
 {
     public int PublicProperty { get; set; }
+    public int ReadOnlyProperty { get; }
     internal int Internalproperty { get; set; }
     private int PrivateProperty { get; set; }
 

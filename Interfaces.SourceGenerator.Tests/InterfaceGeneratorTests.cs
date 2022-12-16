@@ -20,13 +20,6 @@ public class InterfaceGeneratorTests
         
         """;
 
-
-    private static Compilation CreateCompilation(string source)
-            => CSharpCompilation.Create("DependencyInjection.SourceGenerator.Demo",
-                new[] { CSharpSyntaxTree.ParseText(source) },
-                new[] { MetadataReference.CreateFromFile(typeof(InterfaceGenerator).GetTypeInfo().Assembly.Location) },
-                new CSharpCompilationOptions(OutputKind.ConsoleApplication));
-
     private readonly ImmutableArray<string> references = AppDomain.CurrentDomain
     .GetAssemblies()
     .Where(assembly => !assembly.IsDynamic)
@@ -62,21 +55,22 @@ public class InterfaceGeneratorTests
         var code = """
 using Interfaces.SourceGenerator.Tests.Models;
 using Interfaces.SourceGenerator.Contracts.Attributes;
-namespace Interfaces.SourceGenerator.Tests 
+namespace Interfaces.SourceGenerator.Tests
 {
     [GenerateInterface]
     public class Class1
     {
         public void Method1() { }
         public TestModel Test() { return new TestModel(); }
-
+        public void Test2<T>(T data) { }
+        public void Test3<T>(T data) where T : TestModel { }
         public string Property1 { get; set; }
     }
 }
 
 namespace Interfaces.SourceGenerator.Tests.Models
 {
-    public class TestModel()
+    public class TestModel
     {
         
     }
@@ -88,9 +82,13 @@ public interface IClass1
 {
     void Method1();
     Interfaces.SourceGenerator.Tests.Models.TestModel Test();
+    void Test2<T>(T data);
+    void Test3<T>(T data)
+        where T : Interfaces.SourceGenerator.Tests.Models.TestModel;
     string Property1 { get; set; }
 }
 """;
+
 
         await RunTestAsync(code, expected);
         Assert.True(true); // silence warnings, real test happens in the RunAsync() method

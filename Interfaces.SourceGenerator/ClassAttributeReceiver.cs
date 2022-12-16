@@ -20,16 +20,15 @@ internal sealed class ClassAttributeReceiver : ISyntaxContextReceiver
         if (!HasAttribute(classDeclarationSyntax))
             return;
 
-        INamedTypeSymbol? classSymbol = context.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
-        if (classSymbol == null)
-        {
-            return;
-        }
+        var classSymbol = context.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) as INamedTypeSymbol;
+        if (classSymbol == null)        
+            return;       
 
 
         Classes.Add(classSymbol);
     }
-    protected bool HasAttribute(ClassDeclarationSyntax classDeclarationSyntax)
+    
+    private bool HasAttribute(ClassDeclarationSyntax classDeclarationSyntax)
     {
         foreach (var attributeList in classDeclarationSyntax.AttributeLists)
         {

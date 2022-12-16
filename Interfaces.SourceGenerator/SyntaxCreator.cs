@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Data;
 
 namespace Interfaces.SourceGenerator;
 internal static class SyntaxCreator
@@ -28,23 +29,76 @@ internal static class SyntaxCreator
 
     internal static MemberDeclarationSyntax CreateMethod(IMethodSymbol methodSymbol)
     {
-        var parameters = new SeparatedSyntaxList<ParameterSyntax>();
-        foreach (var parameter in methodSymbol.Parameters)
-        {
-            var parameterSyntax = SyntaxFactory.Parameter(
-                SyntaxFactory.Identifier(parameter.Name))
-                .WithType(SyntaxFactory.ParseTypeName(parameter.Type.Name));
-            parameters.Add(parameterSyntax);
-        }
-
+        var parameters = CreateParameterList(methodSymbol);
         var returnType = methodSymbol.ReturnType;
 
-        return SyntaxFactory.MethodDeclaration(
-             SyntaxFactory.ParseTypeName(returnType.ToDisplayString()),
-             SyntaxFactory.Identifier(methodSymbol.Name))
-             .WithParameterList(SyntaxFactory.ParameterList(parameters))
-             .WithSemicolonToken(
-                             SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+        var methodDeclaration = SyntaxFactory.MethodDeclaration(
+            SyntaxFactory.ParseTypeName(returnType.ToDisplayString()),
+            SyntaxFactory.Identifier(methodSymbol.Name))
+            .WithParameterList(SyntaxFactory.ParameterList(parameters))
+            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+
+        if (methodSymbol.IsGenericMethod)
+        {
+            var typeParameters = GetTypeParameters(methodSymbol);
+
+            methodDeclaration = methodDeclaration.WithTypeParameterList(SyntaxFactory.TypeParameterList(typeParameters.Item1));
+            if (typeParameters.Item2.Any())
+                methodDeclaration = methodDeclaration.WithConstraintClauses(typeParameters.Item2);
+
+        }
+
+        return methodDeclaration;
+    }
+
+    private static SeparatedSyntaxList<ParameterSyntax> CreateParameterList(IMethodSymbol methodSymbol)
+    {
+        var parameters = new List<ParameterSyntax>();
+        foreach (var parameter in methodSymbol.Parameters)
+        {
+            // Parse the type name of the parameter using the ParseTypeName method
+            var parameterType = SyntaxFactory.ParseTypeName(parameter.Type.ToDisplayString());
+
+            var parameterSyntax = SyntaxFactory.Parameter(SyntaxFactory.Identifier(parameter.Name))
+                .WithType(parameterType); // Pass the resulting TypeSyntax node to the WithType method
+
+            parameters.Add(parameterSyntax);
+        }
+        return SyntaxFactory.SeparatedList(parameters);
+    }
+
+    private static (SeparatedSyntaxList<TypeParameterSyntax>, SyntaxList<TypeParameterConstraintClauseSyntax>) GetTypeParameters(IMethodSymbol methodSymbol)
+    {
+        var typeParameters = new List<TypeParameterSyntax>();
+        var constraintClauses = new List<TypeParameterConstraintClauseSyntax>();
+        foreach (var typeArgument in methodSymbol.TypeArguments)
+        {
+            var typeParameter = SyntaxFactory.TypeParameter(
+                SyntaxFactory.Identifier(typeArgument.Name));
+
+            // Find the type parameter symbol for the type argument
+            var typeParameterSymbol = methodSymbol.TypeParameters
+                .FirstOrDefault(x => x.Name == typeArgument.Name);
+
+            if (typeParameterSymbol != null && typeParameterSymbol.ConstraintTypes.Any())
+            {
+                // Add constraint clauses for the type parameter
+                var constraints = new List<TypeConstraintSyntax>();
+                foreach (var constraint in typeParameterSymbol.ConstraintTypes)
+                {
+                    constraints.Add(SyntaxFactory.TypeConstraint(SyntaxFactory.ParseTypeName(constraint.ToDisplayString())));
+                }
+
+                var constraintClause = SyntaxFactory.TypeParameterConstraintClause(
+                                           SyntaxFactory.IdentifierName(typeArgument.Name),
+                                           SyntaxFactory.SeparatedList<TypeParameterConstraintSyntax>(constraints));
+                
+                constraintClauses.Add(constraintClause);
+            }
+
+            typeParameters.Add(typeParameter);
+        }
+        return (SyntaxFactory.SeparatedList(typeParameters), SyntaxFactory.List(constraintClauses));
     }
 
     internal static MemberDeclarationSyntax CreateProperty(IPropertySymbol propertySymbol)

@@ -23,7 +23,6 @@
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<!-- Do not include the generator as a lib dependency -->
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<DevelopmentDependency>true</DevelopmentDependency>
 		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>

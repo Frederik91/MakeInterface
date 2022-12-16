@@ -35,5 +35,8 @@ public class MyClass : IMyClass
 ## Installation
 Install the NuGet package [Interfaces.SourceGenerator](https://www.nuget.org/packages/Interfaces.SourceGenerator/)
 
+You can either create the attribute yourself or use the one provided in the package [Interfaces.SourceGenerator.Contracts](https://www.nuget.org/packages/Interfaces.SourceGenerator.Contracts/)
+
+
 ## License
 MIT

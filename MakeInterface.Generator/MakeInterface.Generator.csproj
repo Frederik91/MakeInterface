@@ -11,19 +11,19 @@
 	<PropertyGroup>
 		<OutputType>library</OutputType>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<PackageId>Interfaces.SourceGenerator</PackageId>
+		<PackageId>MakeInterface.Generator</PackageId>
 		<Version>0.0.1</Version>
 		<Authors>Frederik Tegnander</Authors>
 		<Company>COWI</Company>
-		<PackageTags>Interfaces;SourceGenerator</PackageTags>
+		<PackageTags>Interfaces;SourceGenerator;MakeInterface</PackageTags>
 		<PackageDescription>Generates interfaces for classes</PackageDescription>
 		<RepositoryUrl>https://github.com/Frederik91/Interfaces.SourceGenerator</RepositoryUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<!-- Generates a package at build -->
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<!-- Do not include the generator as a lib dependency -->
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<DevelopmentDependency>true</DevelopmentDependency>
 		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 	</PropertyGroup>
@@ -32,6 +32,7 @@
 		<!-- Package the generator in the analyzer directory of the nuget package -->
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 		<None Include="..\readme.md" Pack="true" PackagePath="\" />
+		<None Include="..\LICENSE.txt" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<ItemGroup>

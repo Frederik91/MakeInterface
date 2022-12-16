@@ -1,7 +1,7 @@
-﻿using Interfaces.SourceGenerator.Contracts.Attributes;
-using Interfaces.SourceGenerator.Demo.Models;
+﻿using MakeInterface.Contracts.Attributes;
+using MakeInterface.Demo.Models;
 
-namespace Interfaces.SourceGenerator.Demo;
+namespace MakeInterface.Demo;
 
 [GenerateInterface]
 public class Class1 : ClassBase, IClass1

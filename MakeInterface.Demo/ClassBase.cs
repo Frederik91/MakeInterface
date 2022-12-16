@@ -1,4 +1,4 @@
-﻿namespace Interfaces.SourceGenerator.Demo;
+﻿namespace MakeInterface.Demo;
 
 public class ClassBase
 {

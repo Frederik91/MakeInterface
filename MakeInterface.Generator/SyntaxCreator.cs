@@ -27,10 +27,10 @@ internal static class SyntaxCreator
                 SyntaxFactory.TriviaList());
     }
 
-    internal static MemberDeclarationSyntax CreateMethod(IMethodSymbol methodSymbol, Dictionary<string, string> interfaceNamespaceMap)
+    internal static MemberDeclarationSyntax CreateMethod(IMethodSymbol methodSymbol)
     {
         var parameters = CreateParameterList(methodSymbol);
-        var returnTypeName = GetTypeName(methodSymbol.ReturnType, interfaceNamespaceMap);
+        var returnTypeName = GetTypeName(methodSymbol.ReturnType);
 
         var methodDeclaration = SyntaxFactory.MethodDeclaration(
             SyntaxFactory.ParseTypeName(returnTypeName),
@@ -51,7 +51,7 @@ internal static class SyntaxCreator
         return methodDeclaration;
     }
 
-    private static string GetTypeName(ITypeSymbol type, Dictionary<string, string> interfaceNamespaceMap)
+    private static string GetTypeName(ITypeSymbol type)
     {
         var typeName = type.ToDisplayString();
 
@@ -59,12 +59,9 @@ internal static class SyntaxCreator
         {
             foreach (var typeArgument in namedTypeSymbol.TypeArguments)
             {
-                typeName = typeName.Replace(typeArgument.ToDisplayString(), GetTypeName(typeArgument, interfaceNamespaceMap));
+                typeName = typeName.Replace(typeArgument.ToDisplayString(), GetTypeName(typeArgument));
             }
         }
-
-        if (interfaceNamespaceMap.TryGetValue(typeName, out var interfaceTypeName))
-            typeName = typeName.Replace(typeName, interfaceTypeName);
 
         return typeName;
     }
@@ -142,7 +139,7 @@ internal static class SyntaxCreator
         return (SyntaxFactory.SeparatedList(typeParameters), SyntaxFactory.List(constraintClauses));
     }
 
-    internal static MemberDeclarationSyntax CreateProperty(IPropertySymbol propertySymbol, Dictionary<string, string> interfaceNamespaceMap)
+    internal static MemberDeclarationSyntax CreateProperty(IPropertySymbol propertySymbol)
     {
         var accessors = new List<AccessorDeclarationSyntax> {
                                 SyntaxFactory.AccessorDeclaration(
@@ -160,11 +157,32 @@ internal static class SyntaxCreator
                     SyntaxFactory.Token(SyntaxKind.SemicolonToken)));
         }
 
-        var returnTypeName = GetTypeName(propertySymbol.Type, interfaceNamespaceMap);
+        var returnTypeName = GetTypeName(propertySymbol.Type);
 
         return SyntaxFactory.PropertyDeclaration(
             SyntaxFactory.ParseTypeName(returnTypeName),
             SyntaxFactory.Identifier(propertySymbol.Name))
+            .WithAccessorList(SyntaxFactory.AccessorList(SyntaxFactory.List(accessors)));
+    }
+
+    internal static MemberDeclarationSyntax CreatePropertyFromField(IFieldSymbol fieldSymbol, string name)
+    {
+        var accessors = new List<AccessorDeclarationSyntax> {
+                                SyntaxFactory.AccessorDeclaration(
+                                    SyntaxKind.GetAccessorDeclaration)
+                                .WithSemicolonToken(
+                                    SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+                                 SyntaxFactory.AccessorDeclaration(
+                                    SyntaxKind.SetAccessorDeclaration)
+                                 .WithSemicolonToken(
+                                    SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                                };
+
+        var returnTypeName = GetTypeName(fieldSymbol.Type);
+
+        return SyntaxFactory.PropertyDeclaration(
+            SyntaxFactory.ParseTypeName(returnTypeName),
+            SyntaxFactory.Identifier(name))
             .WithAccessorList(SyntaxFactory.AccessorList(SyntaxFactory.List(accessors)));
     }
 }

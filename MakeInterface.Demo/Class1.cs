@@ -1,15 +1,19 @@
-﻿using MakeInterface.Contracts.Attributes;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using MakeInterface.Contracts.Attributes;
 using MakeInterface.Demo.Models;
 
 namespace MakeInterface.Demo;
 
 [GenerateInterface]
-public class Class1 : ClassBase, IClass1
+public partial class Class1 : ClassBase, IClass1
 {
     public int PublicProperty { get; set; }
     public int ReadOnlyProperty { get; }
     internal int Internalproperty { get; set; }
     private int PrivateProperty { get; set; }
+
+    [ObservableProperty]
+    string? _generatedProperty;
 
     public void Test() { }
 

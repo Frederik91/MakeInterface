@@ -2,12 +2,11 @@ using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Text;
 using System.Text;
-using VerifyCS = MakeInterface.Tests.CSharpSourceGeneratorVerifier<MakeInterface.Generator.InterfaceGenerator>;
-using Microsoft.CodeAnalysis.Testing;
 using MakeInterface.Generator;
 
 namespace MakeInterface.Tests;
 
+[UsesVerify]
 public class InterfaceGeneratorTests
 {
     private static readonly string _header = """
@@ -23,33 +22,10 @@ public class InterfaceGeneratorTests
     .Select(assembly => assembly.Location)
     .ToImmutableArray();
 
-    private async Task RunTestAsync(string code, string class1Code, string testModelCode)
-    {
-        var tester = new VerifyCS.Test
-        {
-            TestState =
-                {
-                    Sources = { code },
-                    GeneratedSources =
-                    {
-                        (typeof(InterfaceGenerator), "IClass1.cs", SourceText.From(class1Code, Encoding.UTF8)),
-                        (typeof(InterfaceGenerator), "ITestModel.cs", SourceText.From(testModelCode, Encoding.UTF8)),
-                    }
-                },
-            ReferenceAssemblies = ReferenceAssemblies.Net.Net60
-        };
-
-        tester.ReferenceAssemblies.AddAssemblies(references);
-        tester.TestState.AdditionalReferences.Add(typeof(InterfaceGenerator).Assembly);
-        tester.TestState.AdditionalReferences.Add(typeof(Contracts.Attributes.GenerateInterfaceAttribute).Assembly);
-
-        await tester.RunAsync();
-    }
-
     [Fact]
-    public async Task CreateInterface()
+    public Task CreateInterface()
     {
-        var code = """
+        var source = """
 #nullable enable
 using MakeInterface.Tests.Models;
 using MakeInterface.Contracts.Attributes;
@@ -57,7 +33,7 @@ using System.Collections.Generic;
 namespace MakeInterface.Tests
 {
     [GenerateInterface]
-    public class Class1
+    public partial class Class1
     {
         public void Method1() { }
         public TestModel Test() { return new TestModel(); }
@@ -69,6 +45,11 @@ namespace MakeInterface.Tests
         public void RefMethod(ref string data) {  }
         public void DefaultNullMethod(string? data = default) {  }
         public void DefaultMethod(int data = default) {  }
+    }
+
+    public partial class Class1 
+    {
+        public void Method2() { }
     }
 }
 
@@ -82,34 +63,6 @@ namespace MakeInterface.Tests.Models
 }
 """;
 
-        var class1Code = _header + """
-namespace MakeInterface.Tests;
-public partial interface IClass1
-{
-    void Method1();
-    MakeInterface.Tests.Models.TestModel Test();
-    void Test2<T>(T data);
-    void Test3<T>(T data)
-        where T : MakeInterface.Tests.Models.TestModel;
-    string? Property1 { get; set; }
-
-    System.Collections.Generic.List<MakeInterface.Tests.Models.ITestModel?>? TestCollection();
-    void OutMethod(out string data);
-    void RefMethod(ref string data);
-    void DefaultNullMethod(string? data = default);
-    void DefaultMethod(int data = default);
-}
-""";
-
-        var testModelCode = _header + """
-namespace MakeInterface.Tests.Models;
-public partial interface ITestModel
-{
-}
-""";
-
-
-        await RunTestAsync(code, class1Code, testModelCode);
-        Assert.True(true); // silence warnings, real test happens in the RunAsync() method
+        return TestHelper.Verify(source);
     }
 }

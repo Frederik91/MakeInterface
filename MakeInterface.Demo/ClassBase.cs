@@ -1,6 +1,8 @@
-﻿namespace MakeInterface.Demo;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-public class ClassBase
+namespace MakeInterface.Demo;
+
+public class ClassBase : ObservableObject
 {
     public int PropertyInBase { get; set; }
     public void MethodInBase() { }

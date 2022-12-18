@@ -9,23 +9,47 @@ using System.Text;
 namespace MakeInterface.Generator;
 
 [Generator]
-public class InterfaceGenerator : ISourceGenerator
+public class InterfaceGenerator : IIncrementalGenerator
 {
-    public void Execute(GeneratorExecutionContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        if (context.SyntaxContextReceiver is not ClassAttributeReceiver receiver)
+        var classProvider = context.SyntaxProvider
+                           .CreateSyntaxProvider((node, _) =>
+                           {
+                               if (node is not ClassDeclarationSyntax classDeclarationSyntax)
+                                   return false;
+                               
+                               foreach (var attributeList in classDeclarationSyntax.AttributeLists)
+                               {
+                                   foreach (var attribute in attributeList.Attributes)
+                                   {
+                                       if (attribute.Name.ToString() == nameof(GenerateInterfaceAttribute) || attribute.Name.ToString() + "Attribute" == nameof(GenerateInterfaceAttribute))
+                                           return true;
+                                   }
+                               }
+                               return false;
+                           },
+                           (ctx, _) =>
+                           {
+                               return ((ctx.SemanticModel), (ClassDeclarationSyntax)ctx.Node);
+                           });
+
+        context.RegisterSourceOutput(classProvider, Generate);
+    }
+
+    private void Generate(SourceProductionContext ctx, (SemanticModel, ClassDeclarationSyntax) cds)
+    {
+        var model = cds.Item1;
+        var classSyntax = cds.Item2;
+
+        var classSymbol = model.GetDeclaredSymbol(classSyntax);
+        if (classSymbol is null)
             return;
-
-        var interfaceNamespaceMap = receiver.Classes.ToDictionary(x => "I" + x.Name, x => x.ContainingNamespace.ToDisplayString() + ".I" + x.Name);
-
-        foreach (var classSymbol in receiver.Classes)
-        {
-            
-            var interfaceName = "I" + classSymbol.Name;
-            var source = GenerateInterface(classSymbol, interfaceName, interfaceNamespaceMap);
-            var sourceText = source.ToFullString();
-            context.AddSource($"{interfaceName}", SourceText.From(sourceText, Encoding.UTF8));
-        }
+        
+        var interfaceName = "I" + classSymbol.Name;
+        var source = GenerateInterface(classSymbol, interfaceName, new Dictionary<string, string>());
+        var sourceText = source.ToFullString();
+        ctx.AddSource($"{interfaceName}.g.cs", SourceText.From(sourceText, Encoding.UTF8));
     }
 
     private CompilationUnitSyntax GenerateInterface(INamedTypeSymbol classSymbol, string interfaceName, Dictionary<string, string> interfaceNamespaceMap)
@@ -67,10 +91,5 @@ public class InterfaceGenerator : ISourceGenerator
         return SyntaxFactory.CompilationUnit()
             .WithMembers(SyntaxFactory.SingletonList<MemberDeclarationSyntax>(namespaceSyntax))
             .NormalizeWhitespace();
-    }
-
-    public void Initialize(GeneratorInitializationContext context)
-    {
-        context.RegisterForSyntaxNotifications(() => new ClassAttributeReceiver(nameof(GenerateInterfaceAttribute)));
     }
 }

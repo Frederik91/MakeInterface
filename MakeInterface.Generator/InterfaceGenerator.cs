@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Diagnostics;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MakeInterface.Generator;
 
@@ -47,12 +48,12 @@ public class InterfaceGenerator : IIncrementalGenerator
             return;
         
         var interfaceName = "I" + classSymbol.Name;
-        var source = GenerateInterface(classSymbol, interfaceName, new Dictionary<string, string>());
+        var source = GenerateInterface(classSymbol, interfaceName);
         var sourceText = source.ToFullString();
         ctx.AddSource($"{interfaceName}.g.cs", SourceText.From(sourceText, Encoding.UTF8));
     }
 
-    private CompilationUnitSyntax GenerateInterface(INamedTypeSymbol classSymbol, string interfaceName, Dictionary<string, string> interfaceNamespaceMap)
+    private CompilationUnitSyntax GenerateInterface(INamedTypeSymbol classSymbol, string interfaceName)
     {
         var trivia = SyntaxCreator.CreateTrivia();
 
@@ -60,20 +61,29 @@ public class InterfaceGenerator : IIncrementalGenerator
         var members = new List<MemberDeclarationSyntax>();
         foreach (var member in classSymbol.GetMembers())
         {
-            if (!member.IsDefinition || member.IsStatic || member.DeclaredAccessibility != Accessibility.Public)
+            if (!member.IsDefinition || member.IsStatic)
                 continue;
 
-            if (member is IMethodSymbol methodSymbol)
+            if (member is IFieldSymbol fieldSymbol && member.DeclaredAccessibility == Accessibility.Private && ContainsAttributeWithName(member, "ObservableProperty"))
+            {
+                var name = GetObservablePropertyName(member);
+                var propertySyntax = SyntaxCreator.CreatePropertyFromField(fieldSymbol, name);
+                members.Add(propertySyntax);
+                continue;
+            }
+            else if (member.DeclaredAccessibility != Accessibility.Public)
+                continue;
+            else if (member is IMethodSymbol methodSymbol)
             {
                 if (methodSymbol.MethodKind != MethodKind.Ordinary)
                     continue;
 
-                var methodSyntax = SyntaxCreator.CreateMethod(methodSymbol, interfaceNamespaceMap);
+                var methodSyntax = SyntaxCreator.CreateMethod(methodSymbol);
                 members.Add(methodSyntax);
             }
             else if (member is IPropertySymbol propertySymbol)
             {
-                var propertySyntax = SyntaxCreator.CreateProperty(propertySymbol, interfaceNamespaceMap);
+                var propertySyntax = SyntaxCreator.CreateProperty(propertySymbol);
                 members.Add(propertySyntax);
             }
         }
@@ -91,5 +101,36 @@ public class InterfaceGenerator : IIncrementalGenerator
         return SyntaxFactory.CompilationUnit()
             .WithMembers(SyntaxFactory.SingletonList<MemberDeclarationSyntax>(namespaceSyntax))
             .NormalizeWhitespace();
+    }
+
+    private string GetObservablePropertyName(ISymbol member)
+    {
+        var name = member.Name;
+        if (name.StartsWith("_"))
+            name = name.Substring(1);
+
+        return ConvertToPascalCase(name);
+    }
+
+    private string ConvertToPascalCase(string camelCase)
+    {
+        // Split the string by capital letters
+        var words = Regex.Split(camelCase, @"(?<!^)(?=[A-Z])");
+
+        // Capitalize the first letter of each word and join them back together
+        return string.Join("", words.Select(w => w.Substring(0, 1).ToUpper() + w.Substring(1)));
+    }
+
+    private bool ContainsAttributeWithName(ISymbol member, string attrubuteName)
+    {
+        foreach (var attribute in member.GetAttributes())
+        {
+            if (attribute.AttributeClass is null)
+                continue;
+
+            if (attribute.AttributeClass.Name == attrubuteName || attribute.AttributeClass.Name == attrubuteName + "Attribute")
+                return true;
+        }
+        return false;
     }
 }

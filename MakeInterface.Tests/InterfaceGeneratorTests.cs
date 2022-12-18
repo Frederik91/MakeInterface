@@ -45,6 +45,9 @@ namespace MakeInterface.Tests
         public void RefMethod(ref string data) {  }
         public void DefaultNullMethod(string? data = default) {  }
         public void DefaultMethod(int data = default) {  }
+
+        [ObservableProperty]
+        string? _generatedProperty;
     }
 
     public partial class Class1 

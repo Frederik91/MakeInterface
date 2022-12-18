@@ -12,10 +12,12 @@ public partial interface IClass1
         where T : MakeInterface.Tests.Models.TestModel;
     string? Property1 { get; set; }
 
-    System.Collections.Generic.List<MakeInterface.Tests.Models.ITestModel?>? TestCollection();
+    System.Collections.Generic.List<ITestModel?>? TestCollection();
     void OutMethod(out string data);
     void RefMethod(ref string data);
     void DefaultNullMethod(string? data = default);
     void DefaultMethod(int data = default);
+    string? GeneratedProperty { get; set; }
+
     void Method2();
 }

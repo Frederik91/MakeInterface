@@ -17,5 +17,7 @@ public partial interface IClass1
     void RefMethod(ref string data);
     void DefaultNullMethod(string? data = default);
     void DefaultMethod(int data = default);
+    string? GeneratedProperty { get; set; }
+
     void Method2();
 }

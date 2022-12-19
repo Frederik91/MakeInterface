@@ -2,7 +2,7 @@
 using MakeInterface.Contracts.Attributes;
 using MakeInterface.Demo.Models;
 
-namespace MakeInterface.Demo;
+namespace MakeInterface.Demo.Implementations;
 
 [GenerateInterface]
 public partial class Class1 : ClassBase, IClass1

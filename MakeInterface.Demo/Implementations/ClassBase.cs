@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace MakeInterface.Demo;
+namespace MakeInterface.Demo.Implementations;
 
 public class ClassBase : ObservableObject
 {

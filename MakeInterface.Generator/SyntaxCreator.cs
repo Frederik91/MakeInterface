@@ -54,17 +54,19 @@ internal static class SyntaxCreator
 
     private static string GetTypeName(ITypeSymbol type)
     {
-        var typeName = type.ToDisplayString();
+        var ns = type.ContainingNamespace.ToDisplayString();
+        return type.ToDisplayString().Replace(ns + ".", "");
+        //var typeName = type.ToDisplayString();
 
-        if (type is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.TypeArguments.Length > 0)
-        {
-            foreach (var typeArgument in namedTypeSymbol.TypeArguments)
-            {
-                typeName = typeName.Replace(typeArgument.ToDisplayString(), GetTypeName(typeArgument));
-            }
-        }
+        //if (type is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.TypeArguments.Length > 0)
+        //{
+        //    foreach (var typeArgument in namedTypeSymbol.TypeArguments)
+        //    {
+        //        typeName = typeName.Replace(typeArgument.ToDisplayString(), GetTypeName(typeArgument));
+        //    }
+        //}
 
-        return typeName;
+        //return typeName;
     }
 
     private static SeparatedSyntaxList<ParameterSyntax> CreateParameterList(IMethodSymbol methodSymbol)
@@ -73,7 +75,7 @@ internal static class SyntaxCreator
         foreach (var parameter in TryGetParameters(methodSymbol))
         {
             // Parse the type name of the parameter using the ParseTypeName method
-            var parameterType = SyntaxFactory.ParseTypeName(parameter.Type.ToDisplayString());
+            var parameterType = SyntaxFactory.ParseTypeName(GetTypeName(parameter.Type));
 
             var parameterSyntax = SyntaxFactory.Parameter(SyntaxFactory.Identifier(parameter.Name));
 
@@ -138,7 +140,7 @@ internal static class SyntaxCreator
                 var constraints = new List<TypeConstraintSyntax>();
                 foreach (var constraint in typeParameterSymbol.ConstraintTypes)
                 {
-                    constraints.Add(SyntaxFactory.TypeConstraint(SyntaxFactory.ParseTypeName(constraint.ToDisplayString())));
+                    constraints.Add(SyntaxFactory.TypeConstraint(SyntaxFactory.ParseTypeName(GetTypeName(constraint))));
                 }
 
                 var constraintClause = SyntaxFactory.TypeParameterConstraintClause(

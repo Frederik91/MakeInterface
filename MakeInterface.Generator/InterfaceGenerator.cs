@@ -48,14 +48,13 @@ public class InterfaceGenerator : IIncrementalGenerator
             return;
 
         var interfaceName = "I" + classSymbol.Name;
-        var source = GenerateInterface(classSymbol, interfaceName);
+        var source = GenerateInterface(classSymbol, interfaceName, classSyntax);
         var sourceText = source.ToFullString();
         ctx.AddSource($"{interfaceName}.g.cs", SourceText.From(sourceText, Encoding.UTF8));
     }
 
-    private CompilationUnitSyntax GenerateInterface(INamedTypeSymbol classSymbol, string interfaceName)
+    private CompilationUnitSyntax GenerateInterface(INamedTypeSymbol classSymbol, string interfaceName, ClassDeclarationSyntax classSyntax)
     {
-        var trivia = SyntaxCreator.CreateTrivia();
 
 
         var members = new List<MemberDeclarationSyntax>();
@@ -92,14 +91,33 @@ public class InterfaceGenerator : IIncrementalGenerator
                                 .WithMembers(SyntaxFactory.List(members));
 
 
+        var trivia = SyntaxCreator.CreateTrivia();
+
         var namespaceSyntax = SyntaxFactory.FileScopedNamespaceDeclaration(SyntaxFactory.IdentifierName(classSymbol.ContainingNamespace.ToDisplayString())).NormalizeWhitespace();
         namespaceSyntax = namespaceSyntax.WithNamespaceKeyword(trivia);
         namespaceSyntax = namespaceSyntax.WithMembers(SyntaxFactory.SingletonList<MemberDeclarationSyntax>(interfaceSyntax));
 
+        var usingsSyntax = CreateUsingSyntax(classSyntax);
 
-        return SyntaxFactory.CompilationUnit()
+        return SyntaxFactory.CompilationUnit()            
+            .WithUsings(usingsSyntax)
             .WithMembers(SyntaxFactory.SingletonList<MemberDeclarationSyntax>(namespaceSyntax))
             .NormalizeWhitespace();
+    }
+
+    private SyntaxList<UsingDirectiveSyntax> CreateUsingSyntax(ClassDeclarationSyntax classSyntax)
+    {
+        var usingDirectives = new SyntaxList<UsingDirectiveSyntax>();
+
+        var parentNode = classSyntax.Parent?.Parent;
+        if (parentNode is null)
+            return new SyntaxList<UsingDirectiveSyntax>();
+
+        foreach (UsingDirectiveSyntax usingDirective in parentNode.ChildNodes().OfType<UsingDirectiveSyntax>())
+        {
+            usingDirectives = usingDirectives.Add(usingDirective);
+        }
+        return usingDirectives;
     }
 
     private string GetObservablePropertyName(ISymbol member)

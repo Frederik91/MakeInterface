@@ -33,7 +33,7 @@ using System.Collections.Generic;
 namespace MakeInterface.Tests
 {
     [GenerateInterface]
-    public partial class Class1
+    public partial class Class1 : BaseClass
     {
         public void Method1() { }
         public TestModel Test() { return new TestModel(); }
@@ -48,12 +48,24 @@ namespace MakeInterface.Tests
 
         [ObservableProperty]
         string? _generatedProperty;
+        public override string AbstractProperty { get; set; }
+        public override void AbstractMethod { get; set; }
+        public override string VirtualProperty { get; set; }
+        public override void VirtualMethod() { }
     }
 
     public partial class Class1 
     {
         public void Method2() { }
     }
+
+    public abstract class BaseClass 
+    {
+        public abstract string AbstractProperty { get; set; }
+        public abstract void AbstractMethod() { }
+        public virtual string VirtualProperty { get; set; }
+        public virtual void VirtualMethod() { }
+    }    
 }
 
 namespace MakeInterface.Tests.Models

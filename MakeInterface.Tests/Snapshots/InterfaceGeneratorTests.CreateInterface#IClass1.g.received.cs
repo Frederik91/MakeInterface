@@ -19,5 +19,12 @@ public partial interface IClass1
     void DefaultMethod(int data = default);
     string? GeneratedProperty { get; set; }
 
+    string AbstractProperty { get; set; }
+
+    void AbstractMethod { get; set; }
+
+    string VirtualProperty { get; set; }
+
+    void VirtualMethod();
     void Method2();
 }

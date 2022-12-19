@@ -19,7 +19,7 @@ public class InterfaceGenerator : IIncrementalGenerator
                            {
                                if (node is not ClassDeclarationSyntax classDeclarationSyntax)
                                    return false;
-                               
+
                                foreach (var attributeList in classDeclarationSyntax.AttributeLists)
                                {
                                    foreach (var attribute in attributeList.Attributes)
@@ -46,7 +46,7 @@ public class InterfaceGenerator : IIncrementalGenerator
         var classSymbol = model.GetDeclaredSymbol(classSyntax);
         if (classSymbol is null)
             return;
-        
+
         var interfaceName = "I" + classSymbol.Name;
         var source = GenerateInterface(classSymbol, interfaceName);
         var sourceText = source.ToFullString();
@@ -61,7 +61,7 @@ public class InterfaceGenerator : IIncrementalGenerator
         var members = new List<MemberDeclarationSyntax>();
         foreach (var member in classSymbol.GetMembers())
         {
-            if (!member.IsDefinition || member.IsStatic)
+            if (!member.IsDefinition || member.IsStatic || member.IsImplicitlyDeclared || member.IsOverride)
                 continue;
 
             if (member is IFieldSymbol fieldSymbol && member.DeclaredAccessibility == Accessibility.Private && ContainsAttributeWithName(member, "ObservableProperty"))
@@ -69,7 +69,6 @@ public class InterfaceGenerator : IIncrementalGenerator
                 var name = GetObservablePropertyName(member);
                 var propertySyntax = SyntaxCreator.CreatePropertyFromField(fieldSymbol, name);
                 members.Add(propertySyntax);
-                continue;
             }
             else if (member.DeclaredAccessibility != Accessibility.Public)
                 continue;

@@ -22,10 +22,10 @@ public class SyntaxTokenListExtensionsTests
     [Fact]
     public void IsPublic()
     {
-        var tokenList = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
+        var tokenList = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
         Assert.True(tokenList.IsPublic());
 
-        tokenList = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword));
+        tokenList = SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword));
         Assert.False(tokenList.IsPublic());
     }
 

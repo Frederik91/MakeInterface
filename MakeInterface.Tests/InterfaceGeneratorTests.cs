@@ -52,6 +52,11 @@ namespace MakeInterface.Tests
         public override void AbstractMethod { get; set; }
         public override string VirtualProperty { get; set; }
         public override void VirtualMethod() { }
+        
+        public async Task AsyncMethod() { }
+
+        public string PropertyWithDefault => string.Empty;
+        public string PropertyWithDefault2 { get; } = string.Empty;
     }
 
     public partial class Class1 
@@ -72,6 +77,33 @@ namespace MakeInterface.Tests.Models
 {
     [GenerateInterface]
     public class TestModel : ITestModel
+    {
+        
+    }
+}
+""";
+
+        return TestHelper.Verify(source, "Class1.cs");
+    }
+
+    [Fact]
+    public Task NamedModel()
+    {
+        var source = """
+using NewName = MakeInterface.Tests.Models.NamedModel;
+namespace MakeInterface.Tests
+{
+    [GenerateInterface]
+    public partial class Class1 : BaseClass
+    {
+        public NewName GetNewName { get; }
+        public NewName SetNewName(NewName name) { return name; }
+    }  
+}
+
+namespace MakeInterface.Tests.Models
+{
+    public class NamedModel
     {
         
     }

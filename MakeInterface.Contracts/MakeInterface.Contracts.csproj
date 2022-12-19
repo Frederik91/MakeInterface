@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
@@ -10,7 +10,7 @@
 		<OutputType>library</OutputType>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<PackageId>MakeInterface.Contracts</PackageId>
-		<Version>0.1.2</Version>
+		<Version>0.1.3-alpha4</Version>
 		<Authors>Frederik Tegnander</Authors>
 		<Company>COWI</Company>
 		<PackageDescription>Contains attriubutes to use with Interfaces.SourceGenerator</PackageDescription>

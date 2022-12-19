@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Data;
+using System.Collections.Immutable;
 
 namespace MakeInterface.Generator;
 internal static class SyntaxCreator
@@ -69,7 +70,7 @@ internal static class SyntaxCreator
     private static SeparatedSyntaxList<ParameterSyntax> CreateParameterList(IMethodSymbol methodSymbol)
     {
         var parameters = new List<ParameterSyntax>();
-        foreach (var parameter in methodSymbol.Parameters)
+        foreach (var parameter in TryGetParameters(methodSymbol))
         {
             // Parse the type name of the parameter using the ParseTypeName method
             var parameterType = SyntaxFactory.ParseTypeName(parameter.Type.ToDisplayString());
@@ -103,6 +104,19 @@ internal static class SyntaxCreator
             parameters.Add(parameterSyntax);
         }
         return SyntaxFactory.SeparatedList(parameters);
+    }
+
+    private static ImmutableArray<IParameterSymbol> TryGetParameters(IMethodSymbol methodSymbol)
+    {
+        try
+        {
+            return methodSymbol.Parameters;
+
+        }
+        catch (Exception)
+        {
+            return new ImmutableArray<IParameterSymbol>();
+        }
     }
 
     private static (SeparatedSyntaxList<TypeParameterSyntax>, SyntaxList<TypeParameterConstraintClauseSyntax>) GetTypeParameters(IMethodSymbol methodSymbol)

@@ -12,10 +12,10 @@ namespace MakeInterface.Tests;
 
 public static class TestHelper
 {
-    public static Task Verify(string source)
+    public static Task Verify(string source, string path = "Test.cs")
     {
         // Parse the provided string into a C# syntax tree
-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+        var syntaxTree = CSharpSyntaxTree.ParseText(source, path: path);
 
         var references = new[]
 {

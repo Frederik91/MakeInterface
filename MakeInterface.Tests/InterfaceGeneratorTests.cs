@@ -114,7 +114,7 @@ namespace MakeInterface.Tests.Models
     }
 
     [Fact]
-    public Task PrivateSet()
+    public Task NotPublicSetter()
     {
         var source = """
 namespace MakeInterface.Tests
@@ -122,8 +122,15 @@ namespace MakeInterface.Tests
     [GenerateInterface]
     public class Class1
     {
-        public string Prop1 { get; private set; }
-        public string Prop2 { get; private set; } = "Test";
+        public string Private1 { get; private set; }
+        public string Protected1 { get; protected set; }
+        public string File1 { get; file set; }
+        public string Internal1 { get; internal set; }
+        
+        public string Private2 { get; private set; } = "Test";
+        public string Protected2 { get; protected set; } = "Test";
+        public string File2 { get; file set; } = "Test";
+        public string Internal2 { get; internal set; } = "Test";
     }  
 }
 """;

@@ -173,6 +173,9 @@ namespace MakeInterface.Tests
         
         [RelayCommand]
         private Task Test3() { return Task.CompletedTask; }
+
+        [RelayCommand]
+        private Task Test3_1Async() { return Task.CompletedTask; }
         
         [RelayCommand]
         private async Task Test4() { await Task.CompletedTask; }
@@ -183,6 +186,31 @@ namespace MakeInterface.Tests
         [RelayCommand]
         private async Task<string> Test6() { return Task.FromResult(string.Empty); }
     }  
+}
+""";
+
+        return TestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task InherritInterfaces()
+    {
+        var source = """
+namespace MakeInterface.Tests
+{
+    [GenerateInterface]
+    public class Class1 : Base, IDisposable
+    {
+        public void Dispose() 
+        {
+        }
+    }  
+
+    public class Base { }
+    public interface IDisposable 
+    { 
+        void Dispose();
+    }
 }
 """;
 

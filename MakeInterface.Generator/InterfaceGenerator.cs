@@ -125,6 +125,8 @@ public class InterfaceGenerator : IIncrementalGenerator
                     })));
                 members.Add(propertyDeclarationSyntax);
             }
+            else if (memberSyntax is MethodDeclarationSyntax relayCommandMethod && ContainsAttributeWithName(memberSyntax.AttributeLists, "RelayCommand"))
+                members.Add(CreateRelayCommand(relayCommandMethod));
             else if (!memberSyntax.Modifiers.IsPublic())
                 continue;
             else if (memberSyntax is MethodDeclarationSyntax methodSyntax)
@@ -189,6 +191,30 @@ public class InterfaceGenerator : IIncrementalGenerator
         return SyntaxFactory.InterfaceDeclaration(interfaceName)
                                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.PartialKeyword)))
                                 .WithMembers(SyntaxFactory.List(members));
+    }
+
+    private MemberDeclarationSyntax CreateRelayCommand(MethodDeclarationSyntax methodSyntax)
+    {
+        var isAsync = MethodIsAsync(methodSyntax);
+        var returnType = SyntaxFactory.ParseTypeName("global::CommunityToolkit.Mvvm.Input." + (isAsync ? "IAsyncRelayCommand" : "IRelayCommand"));
+        var commandName = methodSyntax.Identifier.Text + "Command";
+        var comment = SyntaxFactory.Comment($"// This property was generated because of the RelayCommand attribute applied to the '{methodSyntax.Identifier.Text}' method. See https://aka.ms/CommunityToolkit.MVVM");
+        var leadingTrivia = SyntaxFactory.TriviaList(comment);
+        return SyntaxFactory.PropertyDeclaration(returnType, commandName)
+            .WithLeadingTrivia(leadingTrivia)
+            .WithAccessorList(SyntaxFactory.AccessorList(SyntaxFactory.List(new[]
+            {
+                SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                    .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+            })));
+    }
+
+    private bool MethodIsAsync(MethodDeclarationSyntax methodSyntax)
+    {
+        if (methodSyntax.Modifiers.Any(x => x.IsKind(SyntaxKind.AsyncKeyword)))
+            return true;
+
+        return methodSyntax.ReturnType is GenericNameSyntax genericName && genericName.Identifier.Text == "Task" || methodSyntax.ReturnType.ToString() == "Task";
     }
 
     private static bool IsNotValidInterfaceNamber(ISymbol member)

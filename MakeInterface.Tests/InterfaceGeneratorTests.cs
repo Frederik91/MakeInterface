@@ -46,8 +46,6 @@ namespace MakeInterface.Tests
         public void DefaultNullMethod(string? data = default) {  }
         public void DefaultMethod(int data = default) {  }
 
-        [ObservableProperty]
-        string? _generatedProperty;
         public override string AbstractProperty { get; set; }
         public override void AbstractMethod { get; set; }
         public override string VirtualProperty { get; set; }
@@ -131,6 +129,59 @@ namespace MakeInterface.Tests
         public string Protected2 { get; protected set; } = "Test";
         public string File2 { get; file set; } = "Test";
         public string Internal2 { get; internal set; } = "Test";
+    }  
+}
+""";
+
+        return TestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task ObservableProperty()
+    {
+        var source = """
+namespace MakeInterface.Tests
+{
+    [GenerateInterface]
+    public class Class1
+    {
+        [ObservableProperty]
+        string? _generatedProperty;
+    }  
+}
+""";
+
+        return TestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task RelayCommand()
+    {
+        var source = """
+namespace MakeInterface.Tests
+{
+    [GenerateInterface]
+    public class Class1
+    {
+        private bool CanExecuteTest() => true;
+    
+        [RelayCommand]
+        private void Test() { }
+        
+        [RelayCommand(CanExecute = nameof(CanExecuteTest))]
+        private void Test2() { }
+        
+        [RelayCommand]
+        private Task Test3() { return Task.CompletedTask; }
+        
+        [RelayCommand]
+        private async Task Test4() { await Task.CompletedTask; }
+        
+        [RelayCommand]
+        private Task<string> Test5() { return Task.FromResult(string.Empty); }
+
+        [RelayCommand]
+        private async Task<string> Test6() { return Task.FromResult(string.Empty); }
     }  
 }
 """;

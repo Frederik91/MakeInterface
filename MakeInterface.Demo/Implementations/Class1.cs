@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using MakeInterface.Contracts.Attributes;
 using MakeInterface.Demo.Models;
 
@@ -14,6 +15,12 @@ public partial class Class1 : ClassBase, IClass1
 
     [ObservableProperty]
     string? _generatedProperty;
+
+    [RelayCommand]
+    private void CommandMethod() { }
+
+    [RelayCommand]
+    private Task CommandMethod2() { return Task.CompletedTask; }
 
     public void Test() { }
 

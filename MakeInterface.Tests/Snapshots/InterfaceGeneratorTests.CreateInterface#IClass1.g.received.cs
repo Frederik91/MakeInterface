@@ -23,8 +23,6 @@ namespace MakeInterface.Tests
         void RefMethod(ref string data);
         void DefaultNullMethod(string? data = default);
         void DefaultMethod(int data = default);
-        string? GeneratedProperty { get; set; }
-
         Task AsyncMethod();
         string PropertyWithDefault { get; }
 

@@ -163,13 +163,16 @@ public class InterfaceGenerator : IIncrementalGenerator
                         .WithInitializer(null)
                         .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.None));
                 }
-                else if (newProperty.AccessorList is not null)
+                if (newProperty.AccessorList is not null)
                 {
                     var newAccessors = SyntaxFactory.List<AccessorDeclarationSyntax>();
                     foreach (var accessor in newProperty.AccessorList.Accessors)
                     {
+                        if (accessor.Modifiers.Any(x => x.IsKind(SyntaxKind.PrivateKeyword) || x.IsKind(SyntaxKind.ProtectedKeyword) || x.IsKind(SyntaxKind.InternalKeyword) || x.IsKind(SyntaxKind.FileKeyword)))
+                            continue;
+
                         var newAccessor = accessor
-                            .WithModifiers(new SyntaxTokenList())
+                            .WithBody(null)
                             .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
 
                         newAccessors = newAccessors.Add(newAccessor);

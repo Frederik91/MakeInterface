@@ -6,6 +6,8 @@ namespace MakeInterface.Tests
 {
     public partial interface IClass1
     {
-        string GetNewName { get; set; }
+        string Prop1 { get; }
+
+        string Prop2 { get; }
     }
 }

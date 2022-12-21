@@ -122,7 +122,8 @@ namespace MakeInterface.Tests
     [GenerateInterface]
     public class Class1
     {
-        public string GetNewName { get; private set }
+        public string Prop1 { get; private set; }
+        public string Prop2 { get; private set; } = "Test";
     }  
 }
 """;

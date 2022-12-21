@@ -204,7 +204,12 @@ namespace MakeInterface.Tests
         public void Dispose() 
         {
         }
-    }  
+    } 
+    
+    [GenerateInterface]
+    public class Class2 : Base
+    {
+    } 
 
     public class Base { }
     public interface IDisposable 

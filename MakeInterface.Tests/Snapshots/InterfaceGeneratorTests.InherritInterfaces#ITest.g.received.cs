@@ -7,4 +7,9 @@ namespace MakeInterface.Tests
     public partial interface IClass1 : IDisposable
     {
     }
+
+    public partial interface IClass2 :
+    {
+        void Dispose();
+    }
 }

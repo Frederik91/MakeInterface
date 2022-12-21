@@ -207,43 +207,41 @@ public class InterfaceGenerator : IIncrementalGenerator
     private InterfaceDeclarationSyntax AddInterfaces(InterfaceDeclarationSyntax interfaceDeclaration, ClassDeclarationSyntax classSyntax, SemanticModel semanticModel)
     {
         var baseInterfaces = classSyntax.BaseList?.Types
-    .OfType<SimpleBaseTypeSyntax>()
-    .ToArray();
+            .OfType<SimpleBaseTypeSyntax>()
+            .ToArray();
 
         if (baseInterfaces?.Any() != true)
             return interfaceDeclaration;
 
-        var classType = semanticModel.GetDeclaredSymbol(classSyntax);
-        // remove members from interfaces
         var interfaces = baseInterfaces
             .Select(x => semanticModel.GetSymbolInfo(x.Type).Symbol)
             .OfType<ITypeSymbol>()
             .Where(x => x.TypeKind == TypeKind.Interface)
             .ToArray();
 
+        if (!interfaces.Any())
+            return interfaceDeclaration;
+
         baseInterfaces = baseInterfaces.Where(x => interfaces.Any(y => y.Name == x.Type.ToString())).ToArray();
         interfaceDeclaration = interfaceDeclaration.AddBaseListTypes(baseInterfaces);
-        if (interfaces.Any())
+        foreach (var @interface in interfaces)
         {
-            foreach (var @interface in interfaces)
-            {
-                var interfaceImplementationSyntax = baseInterfaces.FirstOrDefault(x => x.Type.ToString() == @interface.Name);
-                if (interfaceImplementationSyntax is null)
-                    continue;
+            var interfaceImplementationSyntax = baseInterfaces.FirstOrDefault(x => x.Type.ToString() == @interface.Name);
+            if (interfaceImplementationSyntax is null)
+                continue;
 
-                // Get members from interface
-                var baseInterfaceMembers = @interface.GetMembers().Select(x => x.Name);
+            // Get members from interface
+            var baseInterfaceMembers = @interface.GetMembers().Select(x => x.Name);
 
-                // Get members that matches interfaceMembers
-                var membersToRemove = interfaceDeclaration.Members
-                    .Where(member => baseInterfaceMembers.Contains(member.GetName()))
-                    .ToList();
+            // Get members that matches interfaceMembers
+            var membersToRemove = interfaceDeclaration.Members
+                .Where(member => baseInterfaceMembers.Contains(member.GetName()))
+                .ToList();
 
-                // Remove the members from the interface declaration.
-                var newInterface = interfaceDeclaration.RemoveNodes(membersToRemove, SyntaxRemoveOptions.KeepNoTrivia);
-                if (newInterface is not null)
-                    interfaceDeclaration = newInterface;
-            }
+            // Remove the members from the interface declaration.
+            var newInterface = interfaceDeclaration.RemoveNodes(membersToRemove, SyntaxRemoveOptions.KeepNoTrivia);
+            if (newInterface is not null)
+                interfaceDeclaration = newInterface;
         }
 
         // Add the base interfaces to the interface declaration's base list.

@@ -15,6 +15,9 @@ namespace MakeInterface.Tests
         // This property was generated because of the RelayCommand attribute applied to the 'Test3' method. See https://aka.ms/CommunityToolkit.MVVM
         global::CommunityToolkit.Mvvm.Input.IAsyncRelayCommand Test3Command { get; }
 
+        // This property was generated because of the RelayCommand attribute applied to the 'Test3_1Async' method. See https://aka.ms/CommunityToolkit.MVVM
+        global::CommunityToolkit.Mvvm.Input.IAsyncRelayCommand Test3_1Command { get; }
+
         // This property was generated because of the RelayCommand attribute applied to the 'Test4' method. See https://aka.ms/CommunityToolkit.MVVM
         global::CommunityToolkit.Mvvm.Input.IAsyncRelayCommand Test4Command { get; }
 

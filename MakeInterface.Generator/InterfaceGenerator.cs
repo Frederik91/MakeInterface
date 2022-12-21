@@ -33,7 +33,7 @@ public class InterfaceGenerator : IIncrementalGenerator
                            },
                            (ctx, _) =>
                            {
-                               return (CompilationUnitSyntax)ctx.Node;
+                               return (ctx.SemanticModel, (CompilationUnitSyntax)ctx.Node);
                            });
 
         context.RegisterSourceOutput(classProvider, Generate);
@@ -52,10 +52,12 @@ public class InterfaceGenerator : IIncrementalGenerator
         return false;
     }
 
-    private void Generate(SourceProductionContext ctx, CompilationUnitSyntax compilationUnitSyntax)
+    private void Generate(SourceProductionContext ctx, (SemanticModel, CompilationUnitSyntax) input)
     {
         try
         {
+            var semanticModel = input.Item1;
+            var compilationUnitSyntax = input.Item2;
             var trivia = SyntaxCreator.CreateTrivia();
             var namespaces = SyntaxFactory.List<MemberDeclarationSyntax>();
             foreach (var namepaceSyntax in compilationUnitSyntax.Members.OfType<BaseNamespaceDeclarationSyntax>())
@@ -69,7 +71,13 @@ public class InterfaceGenerator : IIncrementalGenerator
                     var interfaceName = "I" + classDeclarationSyntax.Identifier.Text;
                     var fileName = "I" + Path.GetFileNameWithoutExtension(compilationUnitSyntax.SyntaxTree.FilePath);
 
-                    var interfaceSyntax = GenerateInterface(interfaceName, classDeclarationSyntax);
+                    var interfaceSyntax = GenerateInterface(interfaceName, classDeclarationSyntax, semanticModel);
+                    if (interfaceSyntax is null)
+                    {
+                        var diagnostic = Diagnostic.Create(new DiagnosticDescriptor("MI002", "MakeInterface", $"Failed to create interface '{interfaceName}'", "MakeInterface", DiagnosticSeverity.Error, true), Location.None);
+                        ctx.ReportDiagnostic(diagnostic);
+                        continue;
+                    }
                     interfaces = interfaces.Add(interfaceSyntax);
                 }
 
@@ -98,7 +106,7 @@ public class InterfaceGenerator : IIncrementalGenerator
 
     }
 
-    private InterfaceDeclarationSyntax GenerateInterface(string interfaceName, ClassDeclarationSyntax classSyntax)
+    private InterfaceDeclarationSyntax? GenerateInterface(string interfaceName, ClassDeclarationSyntax classSyntax, SemanticModel semanticModel)
     {
         var members = new List<MemberDeclarationSyntax>();
 
@@ -185,21 +193,75 @@ public class InterfaceGenerator : IIncrementalGenerator
                 newProperty = newProperty.WithTrailingTrivia(SyntaxTriviaList.Empty).WithLeadingTrivia(SyntaxTriviaList.Empty);
                 members.Add(newProperty);
             }
-
         }
 
-        return SyntaxFactory.InterfaceDeclaration(interfaceName)
+        var interfaceDeclaration = SyntaxFactory.InterfaceDeclaration(interfaceName)
                                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.PartialKeyword)))
                                 .WithMembers(SyntaxFactory.List(members));
+
+        interfaceDeclaration = AddInterfaces(interfaceDeclaration, classSyntax, semanticModel);
+
+        return interfaceDeclaration;
+    }
+
+    private InterfaceDeclarationSyntax AddInterfaces(InterfaceDeclarationSyntax interfaceDeclaration, ClassDeclarationSyntax classSyntax, SemanticModel semanticModel)
+    {
+        var baseInterfaces = classSyntax.BaseList?.Types
+            .OfType<SimpleBaseTypeSyntax>()
+            .ToArray();
+
+        if (baseInterfaces?.Any() != true)
+            return interfaceDeclaration;
+
+        var interfaces = baseInterfaces
+            .Select(x => semanticModel.GetSymbolInfo(x.Type).Symbol)
+            .OfType<ITypeSymbol>()
+            .Where(x => x.TypeKind == TypeKind.Interface)
+            .ToArray();
+
+        if (!interfaces.Any())
+            return interfaceDeclaration;
+
+        baseInterfaces = baseInterfaces.Where(x => interfaces.Any(y => y.Name == x.Type.ToString())).ToArray();
+        interfaceDeclaration = interfaceDeclaration.AddBaseListTypes(baseInterfaces);
+        foreach (var @interface in interfaces)
+        {
+            var interfaceImplementationSyntax = baseInterfaces.FirstOrDefault(x => x.Type.ToString() == @interface.Name);
+            if (interfaceImplementationSyntax is null)
+                continue;
+
+            // Get members from interface
+            var baseInterfaceMembers = @interface.GetMembers().Select(x => x.Name);
+
+            // Get members that matches interfaceMembers
+            var membersToRemove = interfaceDeclaration.Members
+                .Where(member => baseInterfaceMembers.Contains(member.GetName()))
+                .ToList();
+
+            // Remove the members from the interface declaration.
+            var newInterface = interfaceDeclaration.RemoveNodes(membersToRemove, SyntaxRemoveOptions.KeepNoTrivia);
+            if (newInterface is not null)
+                interfaceDeclaration = newInterface;
+        }
+
+        // Add the base interfaces to the interface declaration's base list.
+        return interfaceDeclaration;
     }
 
     private MemberDeclarationSyntax CreateRelayCommand(MethodDeclarationSyntax methodSyntax)
     {
         var isAsync = MethodIsAsync(methodSyntax);
         var returnType = SyntaxFactory.ParseTypeName("global::CommunityToolkit.Mvvm.Input." + (isAsync ? "IAsyncRelayCommand" : "IRelayCommand"));
-        var commandName = methodSyntax.Identifier.Text + "Command";
+        var methodName = methodSyntax.Identifier.Text;
+
+        // remove Async from the end of the name if it exists
+        if (methodName.EndsWith("Async", StringComparison.OrdinalIgnoreCase))
+            methodName = methodName.Substring(0, methodName.Length - 5);
+
+        var commandName = methodName + "Command";
         var comment = SyntaxFactory.Comment($"// This property was generated because of the RelayCommand attribute applied to the '{methodSyntax.Identifier.Text}' method. See https://aka.ms/CommunityToolkit.MVVM");
         var leadingTrivia = SyntaxFactory.TriviaList(comment);
+
         return SyntaxFactory.PropertyDeclaration(returnType, commandName)
             .WithLeadingTrivia(leadingTrivia)
             .WithAccessorList(SyntaxFactory.AccessorList(SyntaxFactory.List(new[]

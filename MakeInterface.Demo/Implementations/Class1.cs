@@ -6,7 +6,7 @@ using MakeInterface.Demo.Models;
 namespace MakeInterface.Demo.Implementations;
 
 [GenerateInterface]
-public partial class Class1 : ClassBase, IClass1
+public partial class Class1 : ClassBase, IClass1, IDisposable
 {
     public int PublicProperty { get; set; }
     public int ReadOnlyProperty { get; }
@@ -35,4 +35,9 @@ public partial class Class1 : ClassBase, IClass1
     private void PrivateMethod() { }
 
     internal void InternalMethod() { }
+
+    public void Dispose()
+    {
+        throw new NotImplementedException();
+    }
 }

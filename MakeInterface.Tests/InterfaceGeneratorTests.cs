@@ -112,4 +112,21 @@ namespace MakeInterface.Tests.Models
 
         return TestHelper.Verify(source);
     }
+
+    [Fact]
+    public Task PrivateSet()
+    {
+        var source = """
+namespace MakeInterface.Tests
+{
+    [GenerateInterface]
+    public class Class1
+    {
+        public string GetNewName { get; private set }
+    }  
+}
+""";
+
+        return TestHelper.Verify(source);
+    }
 }

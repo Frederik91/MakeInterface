@@ -145,7 +145,6 @@ public class InterfaceGenerator : IIncrementalGenerator
                 var newProperty = propertySyntax
                     .WithModifiers(propertySyntax.Modifiers.Remove(publicModifier));
 
-                var newAccessors = SyntaxFactory.List<AccessorDeclarationSyntax>();
 
                 if (newProperty.ExpressionBody is not null)
                 {
@@ -156,15 +155,26 @@ public class InterfaceGenerator : IIncrementalGenerator
                     newProperty = newProperty
                         .WithExpressionBody(null)
                         .WithAccessorList(SyntaxFactory.AccessorList(SyntaxFactory.SingletonList(getAccessor)))
-                        .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.None));                        
+                        .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.None));
                 }
-
-
-                if (newProperty.Initializer != null)
+                else if (newProperty.Initializer != null)
                 {
                     newProperty = newProperty
                         .WithInitializer(null)
                         .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.None));
+                }
+                else if (newProperty.AccessorList is not null)
+                {
+                    var newAccessors = SyntaxFactory.List<AccessorDeclarationSyntax>();
+                    foreach (var accessor in newProperty.AccessorList.Accessors)
+                    {
+                        var newAccessor = accessor
+                            .WithModifiers(new SyntaxTokenList())
+                            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+
+                        newAccessors = newAccessors.Add(newAccessor);
+                    }
+                    newProperty = newProperty.WithAccessorList(SyntaxFactory.AccessorList(newAccessors));
                 }
 
                 newProperty = newProperty.WithTrailingTrivia(SyntaxTriviaList.Empty).WithLeadingTrivia(SyntaxTriviaList.Empty);

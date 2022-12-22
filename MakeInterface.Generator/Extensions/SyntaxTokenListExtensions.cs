@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MakeInterface.Generator;
+namespace MakeInterface.Generator.Extensions;
 internal static class SyntaxTokenListExtensions
 {
     public static bool ContainsKeyword(this SyntaxTokenList tokenList, SyntaxKind keyword)

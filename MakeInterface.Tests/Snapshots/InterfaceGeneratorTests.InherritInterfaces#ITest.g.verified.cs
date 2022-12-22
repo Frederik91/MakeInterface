@@ -4,7 +4,7 @@
 #nullable enable
 namespace MakeInterface.Tests
 {
-    public partial interface IClass1 : IDisposable
+    public partial interface IClass1 : System.IDisposable, IGeneric<string>
     {
     }
 

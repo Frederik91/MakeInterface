@@ -1,10 +1,10 @@
 ﻿using Microsoft.CodeAnalysis.CSharp;
-using MakeInterface.Generator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MakeInterface.Generator.Extensions;
 
 namespace MakeInterface.Tests;
 public class SyntaxTokenListExtensionsTests

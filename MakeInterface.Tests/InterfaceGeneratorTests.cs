@@ -202,11 +202,13 @@ namespace MakeInterface.Tests
 namespace MakeInterface.Tests
 {
     [GenerateInterface]
-    public class Class1 : Base, IDisposable, IClass1
+    public class Class1 : Base, System.IDisposable, IClass1, IGeneric<string>
     {
         public void Dispose() 
         {
         }
+
+        public void Test<string>() { }
     } 
     
     [GenerateInterface]
@@ -218,6 +220,11 @@ namespace MakeInterface.Tests
     public interface IDisposable 
     { 
         void Dispose();
+    }
+
+    public interface IGeneric<T> 
+    { 
+        void Test<T>();
     }
 }
 """;

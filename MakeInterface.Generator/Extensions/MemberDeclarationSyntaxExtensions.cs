@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace MakeInterface.Generator;
+namespace MakeInterface.Generator.Extensions;
 internal static class MemberDeclarationSyntaxExtensions
 {
     public static string GetName(this MemberDeclarationSyntax syntax)

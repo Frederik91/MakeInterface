@@ -1,4 +1,5 @@
 ﻿using MakeInterface.Generator.Attributes;
+using MakeInterface.Generator.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -222,11 +223,11 @@ public class InterfaceGenerator : IIncrementalGenerator
         if (!interfaces.Any())
             return interfaceDeclaration;
 
-        baseInterfaces = baseInterfaces.Where(x => interfaces.Any(y => y.Name == x.Type.ToString())).ToArray();
+        baseInterfaces = baseInterfaces.Where(x => interfaces.Any(y => semanticModel.IsSameType(x, y))).ToArray();
         interfaceDeclaration = interfaceDeclaration.AddBaseListTypes(baseInterfaces);
         foreach (var @interface in interfaces)
         {
-            var interfaceImplementationSyntax = baseInterfaces.FirstOrDefault(x => x.Type.ToString() == @interface.Name);
+            var interfaceImplementationSyntax = baseInterfaces.FirstOrDefault(x => semanticModel.IsSameType(x, @interface));
             if (interfaceImplementationSyntax is null)
                 continue;
 

@@ -216,7 +216,7 @@ public class InterfaceGenerator : IIncrementalGenerator
         var interfaces = baseInterfaces
             .Select(x => semanticModel.GetSymbolInfo(x.Type).Symbol)
             .OfType<ITypeSymbol>()
-            .Where(x => x.TypeKind == TypeKind.Interface)
+            .Where(x => x.TypeKind == TypeKind.Interface && x.Name != interfaceDeclaration.Identifier.Text)
             .ToArray();
 
         if (!interfaces.Any())
@@ -251,9 +251,20 @@ public class InterfaceGenerator : IIncrementalGenerator
     private MemberDeclarationSyntax CreateRelayCommand(MethodDeclarationSyntax methodSyntax)
     {
         var isAsync = MethodIsAsync(methodSyntax);
-        var returnType = SyntaxFactory.ParseTypeName("global::CommunityToolkit.Mvvm.Input." + (isAsync ? "IAsyncRelayCommand" : "IRelayCommand"));
-        var methodName = methodSyntax.Identifier.Text;
+        TypeSyntax returnType;
+        if (methodSyntax.ParameterList.Parameters.Any())
+        {
+            var genericReturnType = SyntaxFactory.GenericName("global::CommunityToolkit.Mvvm.Input." + (isAsync ? "IAsyncRelayCommand" : "IRelayCommand"));
+            // Get the list of type arguments for the generic name syntax.
+            var typeArgumentList = genericReturnType.TypeArgumentList;
 
+            typeArgumentList = typeArgumentList.AddArguments(methodSyntax.ParameterList.Parameters.Select(p => p.Type).OfType<TypeSyntax>().ToArray());
+            returnType = genericReturnType.WithTypeArgumentList(typeArgumentList);
+        }
+        else
+            returnType = SyntaxFactory.ParseTypeName("global::CommunityToolkit.Mvvm.Input." + (isAsync ? "IAsyncRelayCommand" : "IRelayCommand"));
+
+        var methodName = methodSyntax.Identifier.Text;
         // remove Async from the end of the name if it exists
         if (methodName.EndsWith("Async", StringComparison.OrdinalIgnoreCase))
             methodName = methodName.Substring(0, methodName.Length - 5);

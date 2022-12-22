@@ -185,6 +185,9 @@ namespace MakeInterface.Tests
 
         [RelayCommand]
         private async Task<string> Test6() { return Task.FromResult(string.Empty); }
+
+        [RelayCommand]
+        private void Test7(string _) { }
     }  
 }
 """;
@@ -199,7 +202,7 @@ namespace MakeInterface.Tests
 namespace MakeInterface.Tests
 {
     [GenerateInterface]
-    public class Class1 : Base, IDisposable
+    public class Class1 : Base, IDisposable, IClass1
     {
         public void Dispose() 
         {

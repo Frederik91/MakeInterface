@@ -20,6 +20,9 @@ public partial class Class1 : ClassBase, IClass1, IDisposable
     private void CommandMethod() { }
 
     [RelayCommand]
+    private void CommandMethod3(string test) { }
+
+    [RelayCommand]
     private Task CommandMethod2() { return Task.CompletedTask; }
 
     public void Test() { }

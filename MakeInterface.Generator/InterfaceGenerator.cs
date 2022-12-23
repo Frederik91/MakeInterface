@@ -184,8 +184,9 @@ public class InterfaceGenerator : IIncrementalGenerator
 
                         var newAccessor = accessor
                             .WithBody(null)
+                            .WithExpressionBody(null)
                             .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
-
+                        
                         newAccessors = newAccessors.Add(newAccessor);
                     }
                     newProperty = newProperty.WithAccessorList(SyntaxFactory.AccessorList(newAccessors));

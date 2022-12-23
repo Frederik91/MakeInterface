@@ -231,4 +231,26 @@ namespace MakeInterface.Tests
 
         return TestHelper.Verify(source);
     }
+
+    [Fact]
+    public Task PropertyWithBackingField()
+    {
+        var source = """
+namespace MakeInterface.Tests
+{
+    [GenerateInterface]
+    public class Class1
+    {
+        private string _test;
+        public string Test 
+        {
+            get => _test;
+            set => _test = value;
+        }
+    }  
+}
+""";
+
+        return TestHelper.Verify(source);
+    }
 }

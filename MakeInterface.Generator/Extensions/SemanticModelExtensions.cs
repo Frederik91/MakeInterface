@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace MakeInterface.Generator.Extensions;
 internal static class SemanticModelExtensions
 {
-    public static bool IsSameType(this SemanticModel semanticModel, SimpleBaseTypeSyntax baseTypeSyntax, ITypeSymbol typeSymbol)
+    public static bool IsSameType(this SemanticModel semanticModel, BaseTypeSyntax baseTypeSyntax, ITypeSymbol typeSymbol)
     {
         // Get the symbol for the parsed type syntax.
         var baseTypeSymbol = semanticModel.GetSymbolInfo(baseTypeSyntax.Type).Symbol;

@@ -207,27 +207,36 @@ public class InterfaceGenerator : IIncrementalGenerator
 
     private InterfaceDeclarationSyntax AddInterfaces(InterfaceDeclarationSyntax interfaceDeclaration, ClassDeclarationSyntax classSyntax, SemanticModel semanticModel)
     {
-        var baseInterfaces = classSyntax.BaseList?.Types
-            .OfType<SimpleBaseTypeSyntax>()
-            .ToArray();
-
-        if (baseInterfaces?.Any() != true)
+        if (classSyntax.BaseList is null)
             return interfaceDeclaration;
 
-        var interfaces = baseInterfaces
+        var baseTypes = classSyntax.BaseList.Types;
+
+        if (baseTypes.Any() != true)
+            return interfaceDeclaration;
+
+        var baseClass = baseTypes.FirstOrDefault(x => !IsInterface(x, semanticModel));
+
+        if (baseClass is not null)
+        {
+            baseTypes = AddInheritedInterfaces(semanticModel, baseTypes, baseClass);
+        }
+
+        var interfaces = baseTypes
             .Select(x => semanticModel.GetSymbolInfo(x.Type).Symbol)
             .OfType<ITypeSymbol>()
             .Where(x => x.TypeKind == TypeKind.Interface && x.Name != interfaceDeclaration.Identifier.Text)
             .ToArray();
+        
 
         if (!interfaces.Any())
             return interfaceDeclaration;
 
-        baseInterfaces = baseInterfaces.Where(x => interfaces.Any(y => semanticModel.IsSameType(x, y))).ToArray();
-        interfaceDeclaration = interfaceDeclaration.AddBaseListTypes(baseInterfaces);
+        var basesToAdd = baseTypes.Where(x => interfaces.Any(y => semanticModel.IsSameType(x, y))).ToArray();
+        interfaceDeclaration = interfaceDeclaration.AddBaseListTypes(basesToAdd);
         foreach (var @interface in interfaces)
         {
-            var interfaceImplementationSyntax = baseInterfaces.FirstOrDefault(x => semanticModel.IsSameType(x, @interface));
+            var interfaceImplementationSyntax = basesToAdd.FirstOrDefault(x => semanticModel.IsSameType(x, @interface));
             if (interfaceImplementationSyntax is null)
                 continue;
 
@@ -247,6 +256,68 @@ public class InterfaceGenerator : IIncrementalGenerator
 
         // Add the base interfaces to the interface declaration's base list.
         return interfaceDeclaration;
+    }
+
+    private static SeparatedSyntaxList<BaseTypeSyntax> AddInheritedInterfaces(SemanticModel semanticModel, SeparatedSyntaxList<BaseTypeSyntax> baseTypes,
+        BaseTypeSyntax baseClass)
+    {
+        baseTypes = baseTypes.Remove(baseClass);
+        // Get the symbol for the interface
+        var classSymbol = semanticModel.GetDeclaredSymbol(baseClass);
+        if (classSymbol is null)
+            return baseTypes;
+
+        // Get the syntax node for the interface declaration
+        if (classSymbol.DeclaringSyntaxReferences[0].GetSyntax() is not ClassDeclarationSyntax classDeclarationSyntax)
+            return AddBaseTypesBySymbol(semanticModel, baseClass, baseTypes);
+        
+        if (classDeclarationSyntax.BaseList is null)
+            return baseTypes;
+
+        var baseInterfaces = classDeclarationSyntax.BaseList.Types.Where(x => IsInterface(x, semanticModel));
+        foreach (var baseInterface in baseInterfaces)
+        {
+            baseTypes = baseTypes.Add(baseInterface);
+        }
+
+        return baseTypes;
+    }
+
+    private static SeparatedSyntaxList<BaseTypeSyntax> AddBaseTypesBySymbol(SemanticModel semanticModel, BaseTypeSyntax baseClass, SeparatedSyntaxList<BaseTypeSyntax> baseTypes)
+    {
+        // Get the symbol for the base class
+        var baseClassSymbol = semanticModel.GetDeclaredSymbol(baseClass) as INamedTypeSymbol;
+        if (baseClassSymbol is null)
+            return baseTypes;
+
+        // Get the list of inherited interfaces
+        IEnumerable<INamedTypeSymbol> inheritedInterfaces = baseClassSymbol.AllInterfaces;
+
+        // Create a list of base type syntax objects for the inherited interfaces
+        IEnumerable<BaseTypeSyntax> baseTypeSyntaxList = inheritedInterfaces
+            .Select(interfaceSymbol => SyntaxFactory.SimpleBaseType(
+                SyntaxFactory.ParseTypeName(interfaceSymbol.Name)
+            ));
+        
+        return baseTypes.AddRange(baseTypeSyntaxList);
+    }
+
+    private static bool IsInterface(BaseTypeSyntax baseTypeSyntax, SemanticModel semanticModel)
+    {
+        // Get the type syntax from the base type syntax
+        var typeSyntax = baseTypeSyntax.Type;
+
+        // Check if the type syntax is an interface declaration syntax
+        if (typeSyntax.IsKind(SyntaxKind.InterfaceDeclaration))
+        {
+            return true;
+        }
+
+        // If the type syntax is not an interface declaration syntax,
+        // it could be a type defined in another assembly.
+        // In this case, we can fall back to using the ISymbol interface
+        // to check the TypeKind of the type.
+        return semanticModel.GetDeclaredSymbol(baseTypeSyntax) is INamedTypeSymbol { TypeKind: TypeKind.Interface };
     }
 
     private MemberDeclarationSyntax CreateRelayCommand(MethodDeclarationSyntax methodSyntax)

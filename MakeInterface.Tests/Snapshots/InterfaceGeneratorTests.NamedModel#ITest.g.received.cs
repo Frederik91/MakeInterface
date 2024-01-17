@@ -6,9 +6,9 @@ using NewName = MakeInterface.Tests.Models.NamedModel;
 #nullable enable
 namespace MakeInterface.Tests
 {
-    public partial interface IClass1 :
+    public partial interface IClass1
     {
-        NewName GetNewName { get; }
+        public NewName GetNewName { get; }
 
         NewName SetNewName(NewName name);
     }

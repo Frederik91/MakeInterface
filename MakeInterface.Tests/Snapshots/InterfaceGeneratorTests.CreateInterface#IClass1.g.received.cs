@@ -9,7 +9,7 @@ using System.Collections.Generic;
 #nullable enable
 namespace MakeInterface.Tests
 {
-    public partial interface IClass1 :
+    public partial interface IClass1
     {
         void Method1();
         TestModel Test();
@@ -23,6 +23,13 @@ namespace MakeInterface.Tests
         void RefMethod(ref string data);
         void DefaultNullMethod(string? data = default);
         void DefaultMethod(int data = default);
+        string AbstractProperty { get; set; }
+
+        void AbstractMethod { get; set; }
+
+        string VirtualProperty { get; set; }
+
+        void VirtualMethod();
         Task AsyncMethod();
         string PropertyWithDefault { get; }
 
@@ -35,7 +42,7 @@ namespace MakeInterface.Tests
 #nullable enable
 namespace MakeInterface.Tests.Models
 {
-    public partial interface ITestModel :
+    public partial interface ITestModel
     {
     }
 }

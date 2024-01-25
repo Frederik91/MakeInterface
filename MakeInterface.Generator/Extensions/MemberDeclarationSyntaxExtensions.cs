@@ -10,7 +10,8 @@ internal static class MemberDeclarationSyntaxExtensions
         {
             PropertyDeclarationSyntax property => property.Identifier.Text,
             MethodDeclarationSyntax method => method.Identifier.Text,
-            _ => throw new NotImplementedException(),
+            FieldDeclarationSyntax field => field.Declaration.Variables.First().Identifier.Text,
+            _ => throw new NotImplementedException($"Syntax of kind {syntax.GetType().Name} is not implemented"),
         };
     }
 }

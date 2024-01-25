@@ -111,15 +111,31 @@ public class InterfaceGenerator : IIncrementalGenerator
     {
         var members = new List<MemberDeclarationSyntax>();
 
+        var attribute = classSyntax.AttributeLists
+            .SelectMany(x => x.Attributes)
+            .FirstOrDefault(x => x.Name.ToString() == nameof(GenerateInterfaceAttribute) || x.Name.ToString() + "Attribute" == nameof(GenerateInterfaceAttribute));
+
+        if (attribute is null)
+            throw new Exception($"Class '{classSyntax.Identifier.Text}' does not have the '{nameof(GenerateInterfaceAttribute)}' attribute");
+
+        var excludedMembers = GetExcludedMembers(attribute);
+        var membersFromImplementedTypes = GetMembersDeclaredByInterfacesTypes(classSyntax, semanticModel);
+
         foreach (var memberSyntax in classSyntax.Members)
         {
             if (IsNotValidInterfaceNamber(memberSyntax.Modifiers))
                 continue;
 
+            var name = memberSyntax.GetName();
+            if (excludedMembers.Contains(name))
+                continue;
+
+            if (membersFromImplementedTypes.Contains(memberSyntax.GetName()))
+                continue;
+
             var publicModifier = memberSyntax.Modifiers.FirstOrDefault(x => x.IsKind(SyntaxKind.PublicKeyword));
             if (memberSyntax is FieldDeclarationSyntax fieldDeclarationSyntax && ContainsAttributeWithName(fieldDeclarationSyntax.AttributeLists, "ObservableProperty"))
             {
-                var name = fieldDeclarationSyntax.Declaration.Variables.First().Identifier.Text;
                 name = GetObservablePropertyName(name);
                 // Create property from field
                 var propertyDeclarationSyntax = SyntaxFactory.PropertyDeclaration(fieldDeclarationSyntax.Declaration.Type, name);
@@ -144,6 +160,9 @@ public class InterfaceGenerator : IIncrementalGenerator
                 var asyncModifier = modifiers.FirstOrDefault(x => x.IsKind(SyntaxKind.AsyncKeyword));
                 modifiers = modifiers.Remove(asyncModifier);
 
+                var overrideModifier = modifiers.FirstOrDefault(x => x.IsKind(SyntaxKind.OverrideKeyword));
+                modifiers = modifiers.Remove(overrideModifier);
+
                 var newMethod = methodSyntax
                     .WithBody(null)
                     .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
@@ -156,6 +175,8 @@ public class InterfaceGenerator : IIncrementalGenerator
                 var newProperty = propertySyntax
                     .WithModifiers(propertySyntax.Modifiers.Remove(publicModifier));
 
+                var overrideModifier = newProperty.Modifiers.FirstOrDefault(x => x.IsKind(SyntaxKind.OverrideKeyword));
+                newProperty = newProperty.WithModifiers(newProperty.Modifiers.Remove(overrideModifier));
 
                 if (newProperty.ExpressionBody is not null)
                 {
@@ -186,7 +207,7 @@ public class InterfaceGenerator : IIncrementalGenerator
                             .WithBody(null)
                             .WithExpressionBody(null)
                             .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
-                        
+
                         newAccessors = newAccessors.Add(newAccessor);
                     }
                     newProperty = newProperty.WithAccessorList(SyntaxFactory.AccessorList(newAccessors));
@@ -204,6 +225,77 @@ public class InterfaceGenerator : IIncrementalGenerator
         interfaceDeclaration = AddInterfaces(interfaceDeclaration, classSyntax, semanticModel);
 
         return interfaceDeclaration;
+    }
+
+    private List<string> GetExcludedMembers(AttributeSyntax attribute)
+    {
+        if (attribute.ArgumentList is null)
+            return [];
+
+        var result = new List<string>();
+        foreach (var argument in attribute.ArgumentList.Arguments)
+        {
+            if (argument.Expression is not ArrayCreationExpressionSyntax literalExpressionSyntax)
+                continue;
+
+            if (literalExpressionSyntax.Initializer is not InitializerExpressionSyntax initializerExpressionSyntax)
+                continue;
+
+            foreach (var expression in initializerExpressionSyntax.Expressions)
+            {
+                if (expression is not LiteralExpressionSyntax literalExpression)
+                    continue;
+
+                if (literalExpression.Token.Value is string value)
+                    result.Add(value);
+            }
+        }
+        return result;
+    }
+
+    private List<string> GetMembersDeclaredByInterfacesTypes(ClassDeclarationSyntax classSyntax, SemanticModel semanticModel)
+    {
+        var baseTypes = classSyntax.BaseList?.Types
+            .OfType<SimpleBaseTypeSyntax>()
+            .Select(x => semanticModel.GetSymbolInfo(x.Type).Symbol)
+            .OfType<ITypeSymbol>();
+
+        var result = new List<string>();
+        foreach (var baseType in baseTypes ?? new List<ITypeSymbol>())
+        {
+            var interfaceMembers = GetMembersFromInterfaces(baseType);
+            result.AddRange(interfaceMembers);
+        }
+        return result;
+    }
+
+    private List<string> GetMembersFromInterfaces(ITypeSymbol baseType)
+    {
+        var result = new List<string>();
+        foreach (var interfaceType in baseType.AllInterfaces)
+        {
+            var interfaceMembers = GetMembersFromType(interfaceType);
+            result.AddRange(interfaceMembers);
+        }
+        return result;
+    }
+
+    private static List<string> GetMembersFromType(ITypeSymbol baseType)
+    {
+        List<string> members = new();
+
+        foreach (var member in baseType.GetMembers())
+        {
+            if (baseType.TypeKind == TypeKind.Class && IsNotValidInterfaceNamber(member))
+                continue;
+
+            if (member is IMethodSymbol methodSymbol && methodSymbol.MethodKind is MethodKind.PropertyGet or MethodKind.PropertySet)
+                continue;
+
+            members.Add(member.Name);
+        }
+
+        return members;
     }
 
     private InterfaceDeclarationSyntax AddInterfaces(InterfaceDeclarationSyntax interfaceDeclaration, ClassDeclarationSyntax classSyntax, SemanticModel semanticModel)
@@ -299,7 +391,12 @@ public class InterfaceGenerator : IIncrementalGenerator
 
     private static bool IsNotValidInterfaceNamber(SyntaxTokenList tokenList)
     {
-        return tokenList.IsStatic() || tokenList.IsOverride();
+        if (tokenList.IsStatic())
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private SyntaxList<UsingDirectiveSyntax> CreateUsingSyntax(ClassDeclarationSyntax classSyntax)

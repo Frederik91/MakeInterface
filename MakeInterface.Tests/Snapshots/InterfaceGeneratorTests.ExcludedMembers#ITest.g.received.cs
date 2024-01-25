@@ -4,8 +4,9 @@
 #nullable enable
 namespace MakeInterface.Tests
 {
-    public partial interface IClass1
+    public partial interface IClass
     {
-        public string Test { get; set; }
+        string Get();
+        string Get2();
     }
 }

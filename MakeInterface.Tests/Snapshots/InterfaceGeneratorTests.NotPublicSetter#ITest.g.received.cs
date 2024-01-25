@@ -6,20 +6,20 @@ namespace MakeInterface.Tests
 {
     public partial interface IClass1
     {
-        string Private1 { get; }
+        public string Private1 { get; }
 
-        string Protected1 { get; }
+        public string Protected1 { get; }
 
-        string File1 { get; }
+        public string File1 { get; }
 
-        string Internal1 { get; }
+        public string Internal1 { get; }
 
-        string Private2 { get; }
+        public string Private2 { get; }
 
-        string Protected2 { get; }
+        public string Protected2 { get; }
 
-        string File2 { get; }
+        public string File2 { get; }
 
-        string Internal2 { get; }
+        public string Internal2 { get; }
     }
 }

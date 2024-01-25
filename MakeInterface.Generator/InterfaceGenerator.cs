@@ -127,10 +127,10 @@ public class InterfaceGenerator : IIncrementalGenerator
                 continue;
 
             var name = memberSyntax.GetName();
-            if (excludedMembers.Contains(name))
+            if (name is null || excludedMembers.Contains(name))
                 continue;
 
-            if (membersFromImplementedTypes.Contains(memberSyntax.GetName()))
+            if (membersFromImplementedTypes.Contains(name))
                 continue;
 
             var publicModifier = memberSyntax.Modifiers.FirstOrDefault(x => x.IsKind(SyntaxKind.PublicKeyword));
@@ -165,6 +165,7 @@ public class InterfaceGenerator : IIncrementalGenerator
 
                 var newMethod = methodSyntax
                     .WithBody(null)
+                    .WithExpressionBody(null)
                     .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
                     .WithModifiers(modifiers);
 
@@ -329,7 +330,7 @@ public class InterfaceGenerator : IIncrementalGenerator
 
             // Get members that matches interfaceMembers
             var membersToRemove = interfaceDeclaration.Members
-                .Where(member => baseInterfaceMembers.Contains(member.GetName()))
+                .Where(member => member.GetName() is { } name && baseInterfaceMembers.Contains(name))
                 .ToList();
 
             // Remove the members from the interface declaration.

@@ -302,4 +302,21 @@ namespace MakeInterface.Tests
 
         return TestHelper.Verify(source);
     }
+
+    [Fact]
+    public Task Method_Expression_Body()
+    {
+        var source = """
+namespace MakeInterface.Tests
+{
+    [GenerateInterface]
+    public class Class
+    {
+        public string Get() => return "foo";
+    }
+}
+""";
+
+        return TestHelper.Verify(source);
+    }
 }

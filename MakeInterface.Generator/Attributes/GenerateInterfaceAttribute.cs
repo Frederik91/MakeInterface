@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace MakeInterface.Generator.Attributes;
+namespace MakeInterface;
 
 public class GenerateInterfaceAttribute : Attribute
 {

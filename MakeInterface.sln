@@ -5,7 +5,6 @@ VisualStudioVersion = 17.5.33209.295
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakeInterface.Generator", "MakeInterface.Generator\MakeInterface.Generator.csproj", "{712EECDF-2DC5-482A-93CA-FF0FC041D3A6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakeInterface.Contracts", "MakeInterface.Contracts\MakeInterface.Contracts.csproj", "{BB99CEBA-CD89-4677-943A-2A2A006D9A31}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakeInterface.Tests", "MakeInterface.Tests\MakeInterface.Tests.csproj", "{2FEB818B-0CE6-4E5D-B47D-69742E601079}"
 EndProject
@@ -26,10 +25,6 @@ Global
 		{712EECDF-2DC5-482A-93CA-FF0FC041D3A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{712EECDF-2DC5-482A-93CA-FF0FC041D3A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{712EECDF-2DC5-482A-93CA-FF0FC041D3A6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BB99CEBA-CD89-4677-943A-2A2A006D9A31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BB99CEBA-CD89-4677-943A-2A2A006D9A31}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BB99CEBA-CD89-4677-943A-2A2A006D9A31}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BB99CEBA-CD89-4677-943A-2A2A006D9A31}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2FEB818B-0CE6-4E5D-B47D-69742E601079}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2FEB818B-0CE6-4E5D-B47D-69742E601079}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FEB818B-0CE6-4E5D-B47D-69742E601079}.Release|Any CPU.ActiveCfg = Release|Any CPU

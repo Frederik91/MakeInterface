@@ -35,7 +35,7 @@ public class MyClass : IMyClass
 ## Installation
 Install the NuGet package [MakeInterface](https://www.nuget.org/packages/MakeInterface.Generator/)
 
-You can either create the attribute yourself or use the one provided in the package [MakeInterface.Contracts](https://www.nuget.org/packages/MakeInterface.Contracts/)
+The required `GenerateInterface` attribute is automatically provided by the source generator, so no additional package reference is needed.
 
 
 ## License

@@ -354,7 +354,9 @@ internal sealed class GenerateInterfaceAttribute : System.Attribute
 
         // Add the base interfaces to the interface declaration's base list.
         return interfaceDeclaration;
-    }    private MemberDeclarationSyntax CreateRelayCommand(MethodDeclarationSyntax methodSyntax)
+    }    
+    
+    private MemberDeclarationSyntax CreateRelayCommand(MethodDeclarationSyntax methodSyntax)
     {
         var isAsync = MethodIsAsync(methodSyntax);
         TypeSyntax returnType;

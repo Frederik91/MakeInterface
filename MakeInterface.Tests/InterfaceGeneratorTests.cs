@@ -15,7 +15,7 @@ public class InterfaceGeneratorTests
         var source = """
 #nullable enable
 using MakeInterface.Tests.Models;
-using MakeInterface.Contracts.Attributes;
+using MakeInterface;
 using System.Collections.Generic;
 namespace MakeInterface.Tests
 {

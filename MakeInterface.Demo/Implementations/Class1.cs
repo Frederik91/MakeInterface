@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MakeInterface.Contracts.Attributes;
+using MakeInterface;
 using MakeInterface.Demo.Models;
 
 namespace MakeInterface.Demo.Implementations;

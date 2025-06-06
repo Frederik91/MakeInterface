@@ -187,7 +187,13 @@ namespace MakeInterface.Tests
 
         [RelayCommand]
         private void Test7(string _) { }
-    }  
+
+        [RelayCommand]
+        private System.Threading.Tasks.Task Test8() { return System.Threading.Tasks.Task.CompletedTask; }
+
+        [RelayCommand]
+        private global::System.Threading.Tasks.Task Test9() { return global::System.Threading.Tasks.Task.CompletedTask; }
+    }
 }
 """;
 

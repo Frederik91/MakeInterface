@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MakeInterface.Generator;
-using MakeInterface.Contracts.Attributes;
 
 namespace MakeInterface.Tests;
 
@@ -18,8 +17,7 @@ public static class TestHelper
         var syntaxTree = CSharpSyntaxTree.ParseText(source, path: path);
 
         var references = new[]
-{
-            MetadataReference.CreateFromFile(typeof(GenerateInterfaceAttribute).Assembly.Location),
+        {
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
         };
 

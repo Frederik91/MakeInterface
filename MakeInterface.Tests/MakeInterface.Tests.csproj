@@ -27,7 +27,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\MakeInterface.Contracts\MakeInterface.Contracts.csproj" />
 	  <ProjectReference Include="..\MakeInterface.Generator\MakeInterface.Generator.csproj" />
 	</ItemGroup>
 

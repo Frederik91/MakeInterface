@@ -382,7 +382,19 @@ public class InterfaceGenerator : IIncrementalGenerator
         if (methodSyntax.Modifiers.Any(x => x.IsKind(SyntaxKind.AsyncKeyword)))
             return true;
 
-        return methodSyntax.ReturnType is GenericNameSyntax genericName && genericName.Identifier.Text == "Task" || methodSyntax.ReturnType.ToString() == "Task";
+        return IsTaskReturnType(methodSyntax.ReturnType);
+    }
+
+    private static bool IsTaskReturnType(TypeSyntax typeSyntax)
+    {
+        return typeSyntax switch
+        {
+            IdentifierNameSyntax name => name.Identifier.Text == "Task",
+            GenericNameSyntax generic => generic.Identifier.Text == "Task",
+            QualifiedNameSyntax qualified => IsTaskReturnType(qualified.Right),
+            AliasQualifiedNameSyntax alias => IsTaskReturnType(alias.Name),
+            _ => false,
+        };
     }
 
     private static bool IsNotValidInterfaceNamber(ISymbol member)

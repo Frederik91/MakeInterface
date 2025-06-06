@@ -5,7 +5,6 @@ VisualStudioVersion = 17.5.33209.295
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakeInterface.Generator", "MakeInterface.Generator\MakeInterface.Generator.csproj", "{712EECDF-2DC5-482A-93CA-FF0FC041D3A6}"
 EndProject
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakeInterface.Tests", "MakeInterface.Tests\MakeInterface.Tests.csproj", "{2FEB818B-0CE6-4E5D-B47D-69742E601079}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MakeInterface.Demo", "MakeInterface.Demo\MakeInterface.Demo.csproj", "{6C04F450-6C51-459C-AE5B-B7B22E3A779C}"

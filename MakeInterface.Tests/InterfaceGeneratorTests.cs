@@ -312,7 +312,7 @@ namespace MakeInterface.Tests
     [GenerateInterface]
     public class Class
     {
-        public string Get() => return "foo";
+        public string Get() => "foo";
     }
 }
 """;

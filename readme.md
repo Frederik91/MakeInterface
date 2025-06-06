@@ -40,3 +40,6 @@ The required `GenerateInterface` attribute is automatically provided by the sour
 
 ## License
 MIT
+## Release process
+- Pushes to the `master` branch publish prerelease packages to GitHub Packages using versions like `0.1.0-ci.<run number>`.
+- Tagging the repository with `v<version>` automatically publishes that version to NuGet.org if `NUGET_API_KEY` is configured.

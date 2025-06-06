@@ -354,19 +354,23 @@ internal sealed class GenerateInterfaceAttribute : System.Attribute
 
         // Add the base interfaces to the interface declaration's base list.
         return interfaceDeclaration;
-    }
-
-    private MemberDeclarationSyntax CreateRelayCommand(MethodDeclarationSyntax methodSyntax)
+    }    private MemberDeclarationSyntax CreateRelayCommand(MethodDeclarationSyntax methodSyntax)
     {
         var isAsync = MethodIsAsync(methodSyntax);
         TypeSyntax returnType;
-        if (methodSyntax.ParameterList.Parameters.Any())
+        
+        // Filter out CancellationToken parameters as they don't affect the generic signature
+        var parametersForGeneric = methodSyntax.ParameterList.Parameters
+            .Where(p => !IsCancellationTokenParameter(p))
+            .ToArray();
+            
+        if (parametersForGeneric.Any())
         {
             var genericReturnType = SyntaxFactory.GenericName("global::CommunityToolkit.Mvvm.Input." + (isAsync ? "IAsyncRelayCommand" : "IRelayCommand"));
             // Get the list of type arguments for the generic name syntax.
             var typeArgumentList = genericReturnType.TypeArgumentList;
 
-            typeArgumentList = typeArgumentList.AddArguments(methodSyntax.ParameterList.Parameters.Select(p => p.Type).OfType<TypeSyntax>().ToArray());
+            typeArgumentList = typeArgumentList.AddArguments(parametersForGeneric.Select(p => p.Type).OfType<TypeSyntax>().ToArray());
             returnType = genericReturnType.WithTypeArgumentList(typeArgumentList);
         }
         else
@@ -472,5 +476,19 @@ internal sealed class GenerateInterfaceAttribute : System.Attribute
             }
         }
         return false;
+    }
+
+    private bool IsCancellationTokenParameter(ParameterSyntax parameter)
+    {
+        if (parameter.Type is null)
+            return false;
+            
+        var typeName = parameter.Type.ToString();
+        
+        // Check for various ways CancellationToken might be referenced
+        return typeName == "CancellationToken" ||
+               typeName == "System.Threading.CancellationToken" ||
+               typeName == "global::System.Threading.CancellationToken" ||
+               typeName.EndsWith(".CancellationToken");
     }
 }

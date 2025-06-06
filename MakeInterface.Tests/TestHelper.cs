@@ -30,7 +30,7 @@ public static class TestHelper
             references: references); // 👈 pass the references to the compilation
 
 
-        // Create an instance of our EnumGenerator incremental source generator
+        // Create an instance of our InterfaceGenerator incremental source generator
         var generator = new InterfaceGenerator();
 
         // The GeneratorDriver is used to run our generator against a compilation

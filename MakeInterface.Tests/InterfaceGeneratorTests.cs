@@ -319,4 +319,27 @@ namespace MakeInterface.Tests
 
         return TestHelper.Verify(source);
     }
+
+    [Fact]
+    public Task BaseClassInterfaceInheritance()
+    {
+        var source = """
+namespace MakeInterface.Tests
+{
+    [GenerateInterface]
+    public class MyBase : IMyBase
+    {
+        public string Name { get; set; }
+    }
+
+    [GenerateInterface]
+    public class MySub : MyBase, IMySub
+    {
+        public int Number { get; set; }
+    }
+}
+""";
+
+        return TestHelper.Verify(source);
+    }
 }

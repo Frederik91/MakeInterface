@@ -38,12 +38,12 @@ jobs:
         run: dotnet test --no-build --verbosity normal --configuration Release
 
       - name: Pack
-        run: dotnet pack --no-build --configuration Release /p:PackageVersion=${{ steps.version.outputs.version }} -o ./artifacts
+        run: dotnet pack MakeInterface.Generator/MakeInterface.Generator.csproj --no-build --configuration Release /p:PackageVersion=${{ steps.version.outputs.version }} -o ./artifacts
 
       - name: Publish prerelease to GitHub Packages
         if: github.event_name == 'push' && github.ref_type == 'branch'
-        run: dotnet nuget push ./artifacts/*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/MakeInterface.Generator.${{ steps.version.outputs.version }}.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
 
       - name: Publish release to NuGet.org
         if: github.ref_type == 'tag'
-        run: dotnet nuget push ./artifacts/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        run: dotnet nuget push ./artifacts/MakeInterface.Generator.${{ steps.version.outputs.version }}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate

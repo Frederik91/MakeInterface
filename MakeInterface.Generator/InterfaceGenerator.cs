@@ -314,45 +314,52 @@ internal sealed class GenerateInterfaceAttribute : System.Attribute
 
     private InterfaceDeclarationSyntax AddInterfaces(InterfaceDeclarationSyntax interfaceDeclaration, ClassDeclarationSyntax classSyntax, SemanticModel semanticModel)
     {
-        var baseInterfaces = classSyntax.BaseList?.Types
+        var baseTypes = classSyntax.BaseList?.Types
             .OfType<SimpleBaseTypeSyntax>()
             .ToArray();
 
-        if (baseInterfaces?.Any() != true)
+        if (baseTypes?.Any() != true)
             return interfaceDeclaration;
 
-        var interfaces = baseInterfaces
-            .Select(x => semanticModel.GetSymbolInfo(x.Type).Symbol)
-            .OfType<ITypeSymbol>()
-            .Where(x => x.TypeKind == TypeKind.Interface && x.Name != interfaceDeclaration.Identifier.Text)
-            .ToArray();
+        var interfacesSymbols = new List<ITypeSymbol>();
+        var baseListTypes = new List<SimpleBaseTypeSyntax>();
 
-        if (!interfaces.Any())
-            return interfaceDeclaration;
-
-        baseInterfaces = baseInterfaces.Where(x => interfaces.Any(y => semanticModel.IsSameType(x, y))).ToArray();
-        interfaceDeclaration = interfaceDeclaration.AddBaseListTypes(baseInterfaces);
-        foreach (var @interface in interfaces)
+        foreach (var baseType in baseTypes)
         {
-            var interfaceImplementationSyntax = baseInterfaces.FirstOrDefault(x => semanticModel.IsSameType(x, @interface));
-            if (interfaceImplementationSyntax is null)
+            var symbol = semanticModel.GetSymbolInfo(baseType.Type).Symbol as INamedTypeSymbol;
+            if (symbol is null)
                 continue;
 
-            // Get members from interface
-            var baseInterfaceMembers = @interface.GetMembers().Select(x => x.Name);
+            if (symbol.TypeKind == TypeKind.Interface && symbol.Name != interfaceDeclaration.Identifier.Text)
+            {
+                interfacesSymbols.Add(symbol);
+                baseListTypes.Add(baseType);
+            }
+            else if (symbol.TypeKind == TypeKind.Class && ContainsAttributeWithName(symbol, nameof(GenerateInterfaceAttribute)))
+            {
+                interfacesSymbols.Add(symbol);
+                var interfaceName = GetInterfaceName(symbol);
+                baseListTypes.Add(SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName(interfaceName)));
+            }
+        }
 
-            // Get members that matches interfaceMembers
+        if (!baseListTypes.Any())
+            return interfaceDeclaration;
+
+        interfaceDeclaration = interfaceDeclaration.AddBaseListTypes(baseListTypes.ToArray());
+
+        foreach (var symbol in interfacesSymbols)
+        {
+            var members = GetMembersFromType(symbol);
             var membersToRemove = interfaceDeclaration.Members
-                .Where(member => member.GetName() is { } name && baseInterfaceMembers.Contains(name))
+                .Where(member => member.GetName() is { } name && members.Contains(name))
                 .ToList();
 
-            // Remove the members from the interface declaration.
             var newInterface = interfaceDeclaration.RemoveNodes(membersToRemove, SyntaxRemoveOptions.KeepNoTrivia);
             if (newInterface is not null)
                 interfaceDeclaration = newInterface;
         }
 
-        // Add the base interfaces to the interface declaration's base list.
         return interfaceDeclaration;
     }
 
@@ -443,6 +450,20 @@ internal sealed class GenerateInterfaceAttribute : System.Attribute
 
         // Capitalize the first letter of each word and join them back together
         return string.Join("", words.Select(w => w.Substring(0, 1).ToUpper() + w.Substring(1)));
+    }
+
+    private string GetInterfaceName(INamedTypeSymbol classSymbol)
+    {
+        var name = classSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var index = name.LastIndexOf('.');
+        if (index >= 0)
+        {
+            var prefix = name.Substring(0, index + 1);
+            var type = name.Substring(index + 1);
+            return prefix + "I" + type;
+        }
+
+        return "I" + name;
     }
 
     private bool ContainsAttributeWithName(ISymbol member, string attrubuteName)

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<LangVersion>11</LangVersion>
 		<Nullable>enable</Nullable>
@@ -27,7 +27,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\MakeInterface.Contracts\MakeInterface.Contracts.csproj" />
 	  <ProjectReference Include="..\MakeInterface.Generator\MakeInterface.Generator.csproj" />
 	</ItemGroup>
 

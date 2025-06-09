@@ -1,4 +1,4 @@
-﻿using MakeInterface.Contracts.Attributes;
+﻿using MakeInterface;
 using MakeInterface.Demo.Implementations;
 
 namespace MakeInterface.Demo.Models;

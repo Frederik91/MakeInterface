@@ -27,10 +27,24 @@ You can then implement the interface in your class
 ```csharp
 public class MyClass : IMyClass
 {
-	public string MyProperty { get; set; }
-	public void MyMethod() { }
+        public string MyProperty { get; set; }
+        public void MyMethod() { }
 }
 ```
+
+```csharp
+[GenerateInterface]
+public partial class MailService
+{
+    [InterfaceInclude]
+    public Task SendAsync() { /*...*/ }
+
+    public void Flush() { }
+}
+```
+
+If a class has **no** `[InterfaceInclude]` attributes, the generator keeps its original
+"include everything" behaviour.
 
 ## Installation
 Install the NuGet package [MakeInterface](https://www.nuget.org/packages/MakeInterface.Generator/)

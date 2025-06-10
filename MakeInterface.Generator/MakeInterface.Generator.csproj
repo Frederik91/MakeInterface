@@ -7,7 +7,6 @@
 		<LangVersion>12</LangVersion>
 		<NoWarn>NU5128</NoWarn>
 	</PropertyGroup>
-
 	<PropertyGroup>
 		<OutputType>library</OutputType>
 		<TargetFramework>netstandard2.0</TargetFramework>		

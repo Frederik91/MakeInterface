@@ -22,7 +22,9 @@ namespace MakeInterface.Tests
         global::CommunityToolkit.Mvvm.Input.IAsyncRelayCommand DoStuffWithGlobalCancellationTokenCommand { get; }
 
         // This property was generated because of the RelayCommand attribute applied to the 'SyncWithCancellationToken' method. See https://aka.ms/CommunityToolkit.MVVM
-        global::CommunityToolkit.Mvvm.Input.IRelayCommand SyncWithCancellationTokenCommand { get; }        // This property was generated because of the RelayCommand attribute applied to the 'SyncWithParamAndCancellationToken' method. See https://aka.ms/CommunityToolkit.MVVM
+        global::CommunityToolkit.Mvvm.Input.IRelayCommand SyncWithCancellationTokenCommand { get; }
+
+        // This property was generated because of the RelayCommand attribute applied to the 'SyncWithParamAndCancellationToken' method. See https://aka.ms/CommunityToolkit.MVVM
         global::CommunityToolkit.Mvvm.Input.IRelayCommand<string> SyncWithParamAndCancellationTokenCommand { get; }
     }
 }

@@ -52,6 +52,6 @@ jobs:
         if: github.ref_type == 'tag'
         run: >
           dotnet nuget push
-          ./artifacts/MakeInterface.Generator.*.nupkg
+          ./artifacts/MakeInterface.Generator.${{ steps.gitversion.outputs.nuGetVersionV2 }}.nupkg
           --source https://api.nuget.org/v3/index.json
           --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate

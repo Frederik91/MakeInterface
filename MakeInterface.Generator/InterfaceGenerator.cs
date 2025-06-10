@@ -72,7 +72,6 @@ internal sealed class GenerateInterfaceAttribute : System.Attribute
         {
             var semanticModel = input.Item1;
             var compilationUnitSyntax = input.Item2;
-            var trivia = SyntaxCreator.CreateTrivia();
             var namespaces = SyntaxFactory.List<MemberDeclarationSyntax>();
             foreach (var namepaceSyntax in compilationUnitSyntax.Members.OfType<BaseNamespaceDeclarationSyntax>())
             {
@@ -97,7 +96,6 @@ internal sealed class GenerateInterfaceAttribute : System.Attribute
 
                 var namespaceSyntax = namepaceSyntax
                     .WithMembers(SyntaxFactory.List<MemberDeclarationSyntax>())
-                    .WithNamespaceKeyword(trivia)
                     .WithMembers(interfaces);
                 namespaces = namespaces.Add(namespaceSyntax);
             }
@@ -105,6 +103,7 @@ internal sealed class GenerateInterfaceAttribute : System.Attribute
             var compilationUnit = SyntaxFactory.CompilationUnit()
                 .WithUsings(compilationUnitSyntax.Usings)
                 .WithMembers(namespaces)
+                .WithLeadingTrivia(SyntaxCreator.CreateFileHeaderTrivia())
                 .NormalizeWhitespace();
 
 

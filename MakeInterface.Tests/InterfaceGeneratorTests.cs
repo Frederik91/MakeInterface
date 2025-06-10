@@ -199,7 +199,7 @@ namespace MakeInterface.Tests
 
         return TestHelper.Verify(source);
     }
-
+    
     [Fact]
     public Task RelayCommandWithCancellationToken()
     {

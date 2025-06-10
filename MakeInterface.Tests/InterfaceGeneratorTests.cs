@@ -195,10 +195,9 @@ namespace MakeInterface.Tests
         private global::System.Threading.Tasks.Task Test9() { return global::System.Threading.Tasks.Task.CompletedTask; }
     }
 }
-""";
-
-        return TestHelper.Verify(source);
+""";        return TestHelper.Verify(source);
     }
+
     [Fact]
     public Task RelayCommandWithCancellationToken()
     {

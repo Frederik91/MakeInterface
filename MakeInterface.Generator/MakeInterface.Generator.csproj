@@ -11,7 +11,7 @@
 		<OutputType>library</OutputType>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<PackageId>MakeInterface.Generator</PackageId>
-                <Version>1.0.0</Version>
+        <Version>1.0.0</Version>
 		<Authors>Frederik Tegnander</Authors>
 		<Company>COWI</Company>
 		<PackageTags>Interfaces;SourceGenerator;MakeInterface</PackageTags>

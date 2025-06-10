@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MakeInterface;
 
-public class GenerateInterfaceAttribute : Attribute
+internal class GenerateInterfaceAttribute : Attribute
 {
     public string[]? Exclude { get; set; }
 }

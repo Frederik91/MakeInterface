@@ -97,17 +97,15 @@ dotnet add package MakeInterface.Generator
 ```
 
 The `GenerateInterface` attribute is included in the package and will be available after the build without adding any extra references.
-Install the NuGet package [MakeInterface](https://www.nuget.org/packages/MakeInterface.Generator/):
 
-```bash
-dotnet add package MakeInterface.Generator
-```
-
-The `GenerateInterface` attribute is included in the package and will be available after the build without adding any extra references.
+## Versioning
+This repository uses [GitVersion](https://gitversion.net/) in **Continuous Deployment** mode.
+Every build calculates a deterministic SemVer 2.0 version from the Git history.
+Local builds and CI therefore produce identical package and assembly versions.
 
 
 ## License
 MIT
 ## Release process
-- Pushes to the `master` branch publish prerelease packages to GitHub Packages using versions like `0.1.0-ci.<run number>`.
-- Tagging the repository with `v<version>` automatically publishes that version to NuGet.org if `NUGET_API_KEY` is configured.
+- Pushes to `master` publish prerelease packages to GitHub Packages using the version calculated by GitVersion.
+- Tagging the repository publishes the tagged version to NuGet.org when `NUGET_API_KEY` is configured.

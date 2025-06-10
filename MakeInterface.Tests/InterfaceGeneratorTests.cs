@@ -15,7 +15,7 @@ public class InterfaceGeneratorTests
         var source = """
 #nullable enable
 using MakeInterface.Tests.Models;
-using MakeInterface.Contracts.Attributes;
+using MakeInterface;
 using System.Collections.Generic;
 namespace MakeInterface.Tests
 {
@@ -195,6 +195,56 @@ namespace MakeInterface.Tests
         private global::System.Threading.Tasks.Task Test9() { return global::System.Threading.Tasks.Task.CompletedTask; }
     }
 }
+""";        return TestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task RelayCommandWithCancellationToken()
+    {
+        var source = """
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace MakeInterface.Tests
+{
+    [GenerateInterface]
+    public class ViewModel
+    {
+        [RelayCommand]
+        private Task DoStuff(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        [RelayCommand]
+        private Task DoStuffWithParam(string parameter, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        [RelayCommand]
+        private Task DoStuffWithSystemThreadingCancellationToken(System.Threading.CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        [RelayCommand]
+        private Task DoStuffWithGlobalCancellationToken(global::System.Threading.CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        [RelayCommand]
+        private void SyncWithCancellationToken(CancellationToken cancellationToken)
+        {
+        }
+
+        [RelayCommand]
+        private void SyncWithParamAndCancellationToken(string parameter, CancellationToken cancellationToken)
+        {
+        }
+    }
+}
 """;
 
         return TestHelper.Verify(source);
@@ -318,7 +368,30 @@ namespace MakeInterface.Tests
     [GenerateInterface]
     public class Class
     {
-        public string Get() => return "foo";
+        public string Get() => "foo";
+    }
+}
+""";
+
+        return TestHelper.Verify(source);
+    }
+
+    [Fact]
+    public Task BaseClassInterfaceInheritance()
+    {
+        var source = """
+namespace MakeInterface.Tests
+{
+    [GenerateInterface]
+    public class MyBase : IMyBase
+    {
+        public string Name { get; set; }
+    }
+
+    [GenerateInterface]
+    public class MySub : MyBase, IMySub
+    {
+        public int Number { get; set; }
     }
 }
 """;

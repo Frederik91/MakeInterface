@@ -152,7 +152,7 @@ internal sealed class GenerateInterfaceAttribute : System.Attribute
 
         foreach (var memberSyntax in classSyntax.Members)
         {
-            if (IsNotValidInterfaceNamber(memberSyntax.Modifiers))
+            if (IsNotValidInterfaceMember(memberSyntax.Modifiers))
                 continue;
 
             if (anyIncludes && !ContainsAttributeWithName(memberSyntax.AttributeLists, nameof(InterfaceIncludeAttribute)))
@@ -319,7 +319,7 @@ internal sealed class GenerateInterfaceAttribute : System.Attribute
 
         foreach (var member in baseType.GetMembers())
         {
-            if (baseType.TypeKind == TypeKind.Class && IsNotValidInterfaceNamber(member))
+            if (baseType.TypeKind == TypeKind.Class && IsNotValidInterfaceMember(member))
                 continue;
 
             if (member is IMethodSymbol methodSymbol && methodSymbol.MethodKind is MethodKind.PropertyGet or MethodKind.PropertySet)
@@ -427,15 +427,27 @@ internal sealed class GenerateInterfaceAttribute : System.Attribute
         if (methodSyntax.Modifiers.Any(x => x.IsKind(SyntaxKind.AsyncKeyword)))
             return true;
 
-        return methodSyntax.ReturnType is GenericNameSyntax genericName && genericName.Identifier.Text == "Task" || methodSyntax.ReturnType.ToString() == "Task";
+        return IsTaskReturnType(methodSyntax.ReturnType);
     }
 
-    private static bool IsNotValidInterfaceNamber(ISymbol member)
+    private static bool IsTaskReturnType(TypeSyntax typeSyntax)
+    {
+        return typeSyntax switch
+        {
+            IdentifierNameSyntax name => name.Identifier.Text == "Task",
+            GenericNameSyntax generic => generic.Identifier.Text == "Task",
+            QualifiedNameSyntax qualified => IsTaskReturnType(qualified.Right),
+            AliasQualifiedNameSyntax alias => IsTaskReturnType(alias.Name),
+            _ => false,
+        };
+    }
+
+    private static bool IsNotValidInterfaceMember(ISymbol member)
     {
         return !member.IsDefinition || member.IsStatic || member.IsImplicitlyDeclared || member.IsOverride;
     }
 
-    private static bool IsNotValidInterfaceNamber(SyntaxTokenList tokenList)
+    private static bool IsNotValidInterfaceMember(SyntaxTokenList tokenList)
     {
         if (tokenList.IsStatic())
         {

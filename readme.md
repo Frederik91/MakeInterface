@@ -16,7 +16,7 @@ This is useful when you need interfaces for unit tests or dependency injection w
 using MakeInterface;
 
 [GenerateInterface]
-public partial class MyClass
+public class MyClass
 {
     public string MyProperty { get; set; }
     public void MyMethod() { }

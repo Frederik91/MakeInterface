@@ -1,21 +1,12 @@
 # MakeInterface
 Generate interfaces for your classes at compile time using a simple attribute.
-Generate interfaces for your classes at compile time using a simple attribute.
-
 [![.NET](https://github.com/Frederik91/MakeInterface/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Frederik91/MakeInterface/actions/workflows/dotnet.yml)
 
 MakeInterface is a [C# source generator](https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview) that produces an `I{ClassName}` interface for any class marked with `GenerateInterface`.  The generator analyses the public members of the class and writes the matching interface into your project's build output.
 
 This is particularly useful when you simply need an interface to facilitate unit testing or dependency injection.
 
-MakeInterface is a [C# source generator](https://learn.microsoft.com/dotnet/csharp/roslyn-sdk/source-generators-overview) that produces an `I{ClassName}` interface for any class marked with `GenerateInterface`.  The generator analyses the public members of the class and writes the matching interface into your project's build output.
-
-This is particularly useful when you simply need an interface to facilitate unit testing or dependency injection.
-
 ## Usage
-1. Install the NuGet package (see [Installation](#installation)).
-2. Add the attribute to the class you want an interface for.
-3. Build your project. The interface will appear in your `obj` folder and be part of the compilation.
 1. Install the NuGet package (see [Installation](#installation)).
 2. Add the attribute to the class you want an interface for.
 3. Build your project. The interface will appear in your `obj` folder and be part of the compilation.
@@ -38,18 +29,6 @@ public class MyClass
 }
 ```
 
-Need to omit a member? Use the `Exclude` property to provide a list of member names:
-```csharp
-[GenerateInterface(Exclude = new[] { nameof(MyMethod) })]
-public class MyClass
-{
-        public string MyProperty { get; set; }
-        public void MyMethod() { }
-        public string MyProperty { get; set; }
-        public void MyMethod() { }
-}
-```
-
 The generated interface will then be generated as IMyClass.g.cs
 ```csharp
 public interface IMyClass
@@ -63,8 +42,6 @@ You can then implement the interface in your class
 ```csharp
 public class MyClass : IMyClass
 {
-        public string MyProperty { get; set; }
-        public void MyMethod() { }
         public string MyProperty { get; set; }
         public void MyMethod() { }
 }
